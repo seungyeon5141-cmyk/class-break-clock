@@ -2,6 +2,8 @@
 (function () {
   const { $, $$, esc, toast, randInt } = UI;
   let rolling = false;
+  // 이번 판에서 뽑힌 후보 (이어서 뽑기에서 제외)
+  let round = [];
 
   const st = () => Store.data.picker;
   // 제외 번호로 지정한 학생은 화면 어디에도 나오지 않게 처음부터 빼 둔다
@@ -102,13 +104,22 @@
 
   const historyLabel = (p) => (mode() === 'student' ? label(p) : p.name);
 
-  async function go() {
+  function resetRound() {
+    round = [];
+    $('#pickContinue').hidden = true;
+  }
+
+  // cont = true 이면 '이어서 뽑기': 이번 판에서 이미 뽑힌 후보를 빼고 계속 뽑음
+  async function go(cont = false) {
     if (rolling) return;
+    if (!cont) round = [];
     Sound.unlock();
     const m = mode();
     if (m === 'student' && !students().length) { toast('먼저 설정에서 학생 명단을 불러와 주세요'); return; }
     if (m === 'custom' && !customLines().length) { toast('뽑을 항목을 먼저 입력해 주세요'); $('#customItems').focus(); return; }
-    let candidates = pool();
+    const inRound = new Set(round.map((w) => w.id));
+    let candidates = pool().filter((p) => !inRound.has(p.id));
+    if (cont && !candidates.length) { toast('이번 판에서 모두 뽑혔어요. 🎲 뽑기로 새로 시작하세요'); return; }
     if (!candidates.length) {
       if (st().noRepeat && pickedList().length && await UI.ask(`모두 한 번씩 뽑혔어요. 처음부터 다시 뽑을까요?`, '다시 뽑기')) {
         st()[MODES[m].picked] = [];
@@ -128,11 +139,16 @@
 
     rolling = true;
     $('#pickGo').disabled = true;
+    $('#pickContinue').disabled = true;
     const stage = $('#pickerStage');
     stage.classList.toggle('mode-group', m === 'group');
+    // 앞에서 뽑힌 후보는 위에 작게 남겨 둠
+    const prevHtml = round.length
+      ? `<div class="round-prev"><span class="rp-label">앞에서 뽑힘</span>${round.map((w, i) => `<span class="rp-chip"><b>${i + 1}</b>${esc(historyLabel(w))}</span>`).join('')}</div>`
+      : '';
 
     if (st().effect !== false) {
-      stage.innerHTML = winners.map(() => cardHtml({ no: '', name: '?' }, 'rolling')).join('');
+      stage.innerHTML = prevHtml + winners.map(() => cardHtml({ no: '', name: '?' }, 'rolling')).join('');
       const cards = $$('.pick-card', stage);
       const all = everyone();
       // 이름이 빠르게 바뀌다가 점점 느려지며 멈춤
@@ -155,8 +171,9 @@
         await new Promise((r) => setTimeout(r, 180));
       }
     } else {
-      stage.innerHTML = winners.map((w) => cardHtml(w, 'final')).join('');
+      stage.innerHTML = prevHtml + winners.map((w) => cardHtml(w, 'final')).join('');
     }
+    round.push(...winners);
     Sound.fanfare();
 
     const picked = pickedList();
@@ -168,6 +185,8 @@
     Store.save();
     rolling = false;
     $('#pickGo').disabled = false;
+    $('#pickContinue').disabled = false;
+    $('#pickContinue').hidden = false;
     renderSide();
   }
 
@@ -175,6 +194,7 @@
     if (rolling || !MODES[m]) return;
     st().mode = m;
     Store.save();
+    resetRound();
     $('#pickerStage').innerHTML = '<div class="picker-empty">뽑기 버튼을 눌러 주세요 ✨</div>';
     renderSide();
   }
@@ -211,7 +231,8 @@
   }
 
   function init() {
-    $('#pickGo').addEventListener('click', go);
+    $('#pickGo').addEventListener('click', () => go(false));
+    $('#pickContinue').addEventListener('click', () => go(true));
     $('#pickSettings').addEventListener('click', openSecret);
     $('#secretSave').addEventListener('click', saveSecret);
     $('#secretGrid').addEventListener('click', (e) => {
@@ -256,6 +277,7 @@
       st().customPicked = [];
       st().history = [];
       Store.save();
+      resetRound();
       $('#pickerStage').innerHTML = '<div class="picker-empty">뽑기 버튼을 눌러 주세요 ✨</div>';
       renderSide();
       toast('뽑힌 기록을 초기화했어요');
@@ -280,7 +302,7 @@
       if ($('#pickerPanel').hidden || e.code !== 'Space') return;
       if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       e.preventDefault();
-      go();
+      go(!$('#pickContinue').hidden);
     });
     UI.onPanel('pickerPanel', { open: renderSide });
   }

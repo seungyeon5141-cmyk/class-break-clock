@@ -353,12 +353,12 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 }
 .dock-btn {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  width: 96px; padding: 10px 6px;
+  width: 100px; padding: 10px 6px;
   border-radius: 22px;
-  font-size: 14px;
+  font-size: 16px;
   transition: transform 0.15s, background 0.15s;
 }
-.dock-ico { font-size: 30px; line-height: 1.1; }
+.dock-ico { font-size: 33px; line-height: 1.1; }
 .dock-btn:hover { background: var(--grad-soft); transform: translateY(-3px); }
 
 /* ===== 디데이 위젯 ===== */
@@ -1027,3 +1027,63 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
   .dock-btn { width: 80px; padding: 6px; }
   .dock-ico { font-size: 24px; }
 }
+
+/* ===== 이어서 뽑기 ===== */
+.btn-continue { background: #fff; color: var(--lav-500); border: 3px solid var(--lav-300); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06); }
+.btn-continue:hover { border-color: var(--lav-500); }
+.round-prev { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 6px; border-bottom: 2px dashed var(--lav-200); }
+.rp-label { font-size: 13px; font-weight: 800; color: var(--ink-soft); margin-right: 4px; }
+.rp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.8); font-weight: 700; font-size: 15px; }
+.rp-chip b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--lav-400); color: #fff; font-size: 12px; }
+
+/* ===== 창마다 다른 파스텔 테마 =====
+   메인 화면·설정은 연보라·핑크 그대로, 각 도구 창은 자기 색으로.
+   공통 토큰(--lav-*, --pink-*, --grad*)을 창 안에서만 바꿔 끼워서 모든 버튼·카드가 따라 바뀜 */
+#timerPanel {                         /* 타이머: 하늘·민트 */
+  --lav-50: #F1F9FF; --lav-100: #DDF0FF; --lav-200: #BFE3FF; --lav-300: #93CFFA; --lav-400: #5DB6F0; --lav-500: #2F95D6;
+  --pink-100: #E1F8F0; --pink-300: #9EE6CF; --pink-400: #5FD1B0; --pink-500: #23A887;
+  --grad: linear-gradient(135deg, #5DB6F0 0%, #4FD1B0 100%);
+  --grad-soft: linear-gradient(135deg, #E4F4FF 0%, #E2FAF2 100%);
+}
+#pickerPanel, #secretModal {          /* 뽑기: 피치·코랄 */
+  --lav-50: #FFF6F0; --lav-100: #FFE7D9; --lav-200: #FFD1B8; --lav-300: #FFB38F; --lav-400: #FF9466; --lav-500: #EE6E3A;
+  --pink-100: #FFE6EA; --pink-300: #FFB0BD; --pink-400: #FF8A9C; --pink-500: #EC5A73;
+  --grad: linear-gradient(135deg, #FFA06B 0%, #FF7F96 100%);
+  --grad-soft: linear-gradient(135deg, #FFF0E4 0%, #FFE6EC 100%);
+}
+#racePanel {                          /* 뽑기 레이스: 라임·청록 */
+  --lav-50: #F2FBF3; --lav-100: #DDF5E1; --lav-200: #BDEBC6; --lav-300: #8FDBA2; --lav-400: #5CC77D; --lav-500: #2E9F58;
+  --pink-100: #DFF6F7; --pink-300: #93DDE3; --pink-400: #4CC3CE; --pink-500: #1E9AA6;
+  --grad: linear-gradient(135deg, #5CC77D 0%, #3FB8C9 100%);
+  --grad-soft: linear-gradient(135deg, #E8F9EC 0%, #E0F6F8 100%);
+}
+#noticePanel, #noticeModal {          /* 공지: 레몬·오렌지 */
+  --lav-50: #FFFBEB; --lav-100: #FFF2C2; --lav-200: #FFE68F; --lav-300: #FFD45C; --lav-400: #F7B731; --lav-500: #D08A00;
+  --pink-100: #FFEBDD; --pink-300: #FFC195; --pink-400: #FF9C5B; --pink-500: #E0702A;
+  --grad: linear-gradient(135deg, #F7B731 0%, #FF8F5A 100%);
+  --grad-soft: linear-gradient(135deg, #FFF7D6 0%, #FFEBDD 100%);
+}
+#popupPanel {                         /* 팝업: 체리 레드 */
+  --lav-50: #FFF2F4; --lav-100: #FFDFE5; --lav-200: #FFC2CD; --lav-300: #FF9AAD; --lav-400: #FF6F8A; --lav-500: #E0405F;
+  --pink-100: #FFE3EC; --pink-300: #FFA8C3; --pink-400: #FF7FA6; --pink-500: #E04F80;
+  --grad: linear-gradient(135deg, #FF5C7A 0%, #FF8FB1 100%);
+  --grad-soft: linear-gradient(135deg, #FFE8EC 0%, #FFEAF2 100%);
+}
+#ddayPanel, #ddayModal {              /* 디데이: 페리윙클 블루 */
+  --lav-50: #F4F5FF; --lav-100: #E3E7FF; --lav-200: #C9D0FF; --lav-300: #A8B3FF; --lav-400: #8291F5; --lav-500: #5A69D6;
+  --pink-100: #ECE6FF; --pink-300: #C7B6FF; --pink-400: #A68CF5; --pink-500: #7D5FDB;
+  --grad: linear-gradient(135deg, #7F8FF5 0%, #A68CF5 100%);
+  --grad-soft: linear-gradient(135deg, #EAEDFF 0%, #F0EAFF 100%);
+}
+#roulettePanel {                      /* 돌림판: 라일락·마젠타 */
+  --lav-50: #FDF3FF; --lav-100: #F7E0FF; --lav-200: #EEC4FF; --lav-300: #E2A2FA; --lav-400: #CF7CEB; --lav-500: #A94CC6;
+  --pink-100: #FFE4F4; --pink-300: #FFADD9; --pink-400: #FF85C6; --pink-500: #E0559F;
+  --grad: linear-gradient(135deg, #C77DEB 0%, #FF85C6 100%);
+  --grad-soft: linear-gradient(135deg, #F8E8FF 0%, #FFE8F4 100%);
+}
+#timerPanel #ringGrad stop:first-child { stop-color: #5DB6F0; }
+#timerPanel #ringGrad stop:last-child { stop-color: #4FD1B0; }
+/* 창 제목 줄 아이콘 뒤에 테마 색 동그라미 */
+.panel .ph-ico { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: rgba(255, 255, 255, 0.75); box-shadow: inset 0 0 0 2px var(--lav-200); }
+.panel-head h2 { color: var(--ink); }
+.panel .btn-primary { box-shadow: 0 8px 20px color-mix(in srgb, var(--lav-400) 40%, transparent); }
