@@ -127,9 +127,9 @@
   --white: #ffffff;
   --red: #ff4d6d;
   --mint: #7fd8be;
-  --grad: linear-gradient(135deg, var(--lav-400) 0%, var(--pink-400) 100%);
-  --grad-soft: linear-gradient(135deg, #efe6ff 0%, #ffe3f1 100%);
-  --bg: linear-gradient(140deg, #eadfff 0%, #f6e4ff 38%, #ffe0ef 72%, #ffd3e6 100%);
+  --grad: linear-gradient(135deg, var(--pink-400) 0%, #E9A0E6 100%);
+  --grad-soft: linear-gradient(135deg, #FFE6F2 0%, #F8E6FF 100%);
+  --bg: linear-gradient(140deg, #FFE4F1 0%, #FDE1F2 40%, #FADDF5 68%, #F0DCFC 88%, #E6DAFD 100%);
   --card: rgba(255, 255, 255, 0.78);
   --line: rgba(157, 124, 245, 0.18);
   --shadow: 0 10px 30px rgba(157, 124, 245, 0.18), 0 2px 6px rgba(244, 123, 182, 0.1);
@@ -212,8 +212,8 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
   opacity: 0.55;
   pointer-events: none;
 }
-.stage::before { width: 420px; height: 420px; background: #d8c6ff; right: -120px; top: -120px; }
-.stage::after { width: 380px; height: 380px; background: #ffc6e0; left: -140px; bottom: -160px; }
+.stage::before { width: 460px; height: 460px; background: #FFCDE5; left: -120px; top: -140px; opacity: 0.7; }
+.stage::after { width: 380px; height: 380px; background: #E4D3FF; right: -150px; bottom: -170px; opacity: 0.45; }
 
 .clock-area {
   position: relative;
@@ -246,18 +246,18 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, #8f6cf0 0%, #c77ddb 50%, #f27bb3 100%);
+  background: linear-gradient(135deg, #FF5FA2 0%, #FF7DB8 40%, #F27FCB 70%, #C98AF0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   white-space: nowrap;
   /* 은은하게 숨 쉬는 연보라·핑크 빛 */
-  filter: drop-shadow(0 0 14px rgba(183, 156, 255, 0.75)) drop-shadow(0 0 34px rgba(255, 159, 207, 0.55)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3));
+  filter: drop-shadow(0 0 14px rgba(255, 143, 196, 0.8)) drop-shadow(0 0 34px rgba(255, 170, 214, 0.6)) drop-shadow(0 10px 22px rgba(232, 110, 170, 0.28));
   animation: clockGlow 3.2s ease-in-out infinite;
 }
 @keyframes clockGlow {
-  0%, 100% { filter: drop-shadow(0 0 12px rgba(183, 156, 255, 0.65)) drop-shadow(0 0 30px rgba(255, 159, 207, 0.45)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3)); }
-  50% { filter: drop-shadow(0 0 20px rgba(183, 156, 255, 0.95)) drop-shadow(0 0 52px rgba(255, 159, 207, 0.75)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3)); }
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 143, 196, 0.65)) drop-shadow(0 0 30px rgba(230, 170, 240, 0.45)) drop-shadow(0 10px 22px rgba(232, 110, 170, 0.28)); }
+  50% { filter: drop-shadow(0 0 20px rgba(255, 143, 196, 0.95)) drop-shadow(0 0 52px rgba(240, 170, 230, 0.75)) drop-shadow(0 10px 22px rgba(232, 110, 170, 0.28)); }
 }
 @media (prefers-reduced-motion: reduce) { .clock { animation: none; } }
 .clock-digits .ampm { font-size: 0.32em; margin-right: 0.15em; letter-spacing: 0; }
@@ -269,7 +269,7 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
   padding: 12px 30px;
   border-radius: var(--r-lg);
   background: rgba(255, 255, 255, 0.55);
-  border: 2px dashed var(--lav-300);
+  border: 2px dashed var(--pink-300);
 }
 .warning-sub { margin-top: 6px; font-size: clamp(22px, 2.3vw, 32px); color: var(--ink-soft); }
 
