@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>쉬는시간 알리미</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ===== 상단 바 ===== -->
+  <header class="titlebar">
+    <div class="brand">
+      <img src="assets/icon.png" alt="" class="brand-icon" />
+      <span class="brand-name">쉬는시간 알리미</span>
+    </div>
+    <div class="titlebar-actions">
+      <button class="tb-btn" id="tbPin" title="항상 위에 고정" aria-label="항상 위에 고정">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2h-4v6l-1 1-1-1v-6H7v-2l3-3z"/></svg>
+      </button>
+      <button class="tb-btn" id="tbMin" title="최소화" aria-label="최소화">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+      </button>
+      <button class="tb-btn" id="tbFull" title="전체 화면" aria-label="전체 화면">
+        <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+      <button class="tb-btn" id="tbMax" title="최대화" aria-label="최대화">
+        <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>
+      </button>
+      <button class="tb-btn tb-close" id="tbClose" title="닫기 (트레이로 숨기기)" aria-label="닫기">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== 메인 화면 ===== -->
+  <main class="stage" id="stage">
+    <!-- 디데이 위젯 (왼쪽 상단 고정) -->
+    <section class="dday-pins" id="ddayPins" aria-label="디데이"></section>
+
+    <section class="clock-area">
+      <div class="status-chip" id="statusChip">시간표를 불러오는 중…</div>
+      <div class="date-line" id="dateLine"></div>
+      <div class="clock" id="clock" aria-live="off">
+        <span class="clock-digits" id="clockDigits">00:00:00</span>
+      </div>
+      <div class="warning-sub" id="warningSub" hidden>현재 시각 <span id="warningNow"></span></div>
+      <p class="clock-message" id="clockMessage">쉬는 시간 1분 전에는 자리에 앉아주세요</p>
+
+      <div class="bell-toggles" role="group" aria-label="종소리 켜기/끄기">
+        <button class="bell-toggle" data-sound="classStart">
+          <span class="bt-emoji">🔔</span><span class="bt-label">수업 시작종</span><span class="bt-state"></span>
+        </button>
+        <button class="bell-toggle" data-sound="breakStart">
+          <span class="bt-emoji">🎵</span><span class="bt-label">쉬는 시간종</span><span class="bt-state"></span>
+        </button>
+        <button class="bell-toggle" data-sound="warning">
+          <span class="bt-emoji">⏰</span><span class="bt-label">1분 전 알림</span><span class="bt-state"></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="timeline" id="timeline" aria-label="오늘 시간표"></section>
+
+    <nav class="dock" aria-label="도구">
+      <button class="dock-btn" data-open="timerPanel"><span class="dock-ico">⏳</span><span>타이머</span></button>
+      <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico">🎲</span><span>뽑기</span></button>
+      <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico">📅</span><span>디데이</span></button>
+      <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico">🎡</span><span>돌림판</span></button>
+      <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico">⚙️</span><span>설정</span></button>
+    </nav>
+  </main>
+
+  <!-- ===== 패널 공통 배경 ===== -->
+  <div class="panel-backdrop" id="panelBackdrop" hidden></div>
+
+  <!-- ===== 타이머 ===== -->
+  <section class="panel" id="timerPanel" hidden aria-label="타이머">
+    <header class="panel-head">
+      <h2><span class="ph-ico">⏳</span>타이머</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-expand title="크게 보기">⤢</button>
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-body timer-layout">
+      <div class="timer-main">
+        <div class="seg-tabs" role="tablist">
+          <button class="seg active" data-timer-mode="timer">타이머</button>
+          <button class="seg" data-timer-mode="stopwatch">스톱워치</button>
+        </div>
+        <input class="timer-title" id="timerTitle" maxlength="20" value="쉬는 시간" aria-label="타이머 제목" />
+        <div class="timer-face" id="timerFace">
+          <svg class="timer-ring" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#b79cff" />
+                <stop offset="1" stop-color="#ff9fcf" />
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="100" cy="100" r="90" />
+            <circle class="ring-fg" id="timerRing" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="timer-digits">
+            <div class="td-unit">
+              <button class="td-arrow" data-adj="60" aria-label="1분 늘리기">⌃</button>
+              <input class="td-input" id="timerMin" inputmode="numeric" maxlength="3" value="05" aria-label="분" />
+              <button class="td-arrow" data-adj="-60" aria-label="1분 줄이기">⌄</button>
+            </div>
+            <span class="td-colon">:</span>
+            <div class="td-unit">
+              <button class="td-arrow" data-adj="1" aria-label="1초 늘리기">⌃</button>
+              <input class="td-input" id="timerSec" inputmode="numeric" maxlength="2" value="00" aria-label="초" />
+              <button class="td-arrow" data-adj="-1" aria-label="1초 줄이기">⌄</button>
+            </div>
+          </div>
+          <div class="sw-digits" id="swDigits" hidden>00:00<small>.0</small></div>
+          <p class="timer-hint" id="timerHint">숫자를 눌러 직접 입력할 수 있어요</p>
+        </div>
+        <div class="timer-controls">
+          <button class="btn btn-ghost" id="timerReset">↺ 재설정</button>
+          <button class="btn btn-primary btn-lg" id="timerStart">▶ 시작</button>
+          <button class="btn btn-ghost" id="swLap" hidden>🏁 기록</button>
+        </div>
+        <ol class="laps" id="swLaps" hidden></ol>
+      </div>
+      <aside class="timer-side" id="timerSide">
+        <div class="side-card">
+          <h3>소리</h3>
+          <label class="check"><input type="checkbox" id="timerTick" checked /> <span>종료 5초 전 경고음</span></label>
+          <label class="check"><input type="checkbox" id="timerEndSound" checked /> <span>종료음</span></label>
+        </div>
+        <div class="side-card">
+          <h3>시간 설정</h3>
+          <div class="preset-grid" id="timerPresets"></div>
+        </div>
+        <div class="side-card">
+          <h3>시간 증감 <small>실행 중에도 가능해요</small></h3>
+          <div class="adj-grid">
+            <button class="adj plus" data-delta="60">＋1분</button>
+            <button class="adj plus" data-delta="300">＋5분</button>
+            <button class="adj plus" data-delta="600">＋10분</button>
+            <button class="adj minus" data-delta="-60">－1분</button>
+            <button class="adj minus" data-delta="-300">－5분</button>
+            <button class="adj minus" data-delta="-600">－10분</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== 뽑기 ===== -->
+  <section class="panel" id="pickerPanel" hidden aria-label="학생 뽑기">
+    <header class="panel-head">
+      <h2><span class="ph-ico">🎲</span>학생 뽑기</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-expand title="크게 보기">⤢</button>
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-notice" id="pickerNotice"></div>
+    <div class="panel-body picker-layout">
+      <div class="picker-main">
+        <div class="seg-tabs" id="pickerGender">
+          <button class="seg active" data-gender="all">전체</button>
+          <button class="seg" data-gender="M">남학생만</button>
+          <button class="seg" data-gender="F">여학생만</button>
+        </div>
+        <div class="picker-stage" id="pickerStage">
+          <div class="picker-empty">뽑기 버튼을 눌러 주세요 ✨</div>
+        </div>
+        <div class="picker-controls">
+          <div class="stepper">
+            <button class="step" id="pickCountMinus" aria-label="인원 줄이기">－</button>
+            <span><b id="pickCount">1</b>명</span>
+            <button class="step" id="pickCountPlus" aria-label="인원 늘리기">＋</button>
+          </div>
+          <button class="btn btn-primary btn-lg" id="pickGo">🎲 뽑기</button>
+          <label class="check"><input type="checkbox" id="pickNoRepeat" checked /> <span>뽑힌 학생 제외</span></label>
+        </div>
+      </div>
+      <aside class="picker-side">
+        <div class="side-card grow">
+          <h3>학생 명단 <small id="pickerCountInfo"></small></h3>
+          <p class="mini-help">학생을 눌러 결석·제외할 수 있어요</p>
+          <div class="student-chips" id="studentChips"></div>
+        </div>
+        <div class="side-card">
+          <h3>뽑힌 기록 <button class="link-btn" id="pickReset">초기화</button></h3>
+          <div class="history" id="pickHistory"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== 디데이 ===== -->
+  <section class="panel panel-narrow" id="ddayPanel" hidden aria-label="디데이">
+    <header class="panel-head">
+      <h2><span class="ph-ico">📅</span>디데이</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-notice">💡 <b>화면에서 보기</b>를 켠 디데이는 메인 화면 왼쪽 위에 고정돼요.</div>
+    <div class="panel-body">
+      <div class="dday-list-head">
+        <span><b id="ddayCount">0</b>/50</span>
+        <button class="link-btn" id="ddayClearAll">전체 삭제</button>
+      </div>
+      <div class="dday-list" id="ddayList"></div>
+      <button class="fab" id="ddayAdd" title="디데이 새로 만들기" aria-label="디데이 새로 만들기">＋</button>
+    </div>
+  </section>
+
+  <!-- 디데이 만들기/수정 모달 -->
+  <div class="modal" id="ddayModal" hidden>
+    <div class="modal-card">
+      <div class="modal-badge">✏️</div>
+      <button class="modal-x" data-modal-close aria-label="닫기">✕</button>
+      <h3 id="ddayModalTitle">디데이 새로 만들기</h3>
+      <div class="dday-preview-wrap"><div class="dday-card" id="ddayPreview"></div></div>
+      <input class="field" id="ddayTitle" maxlength="20" placeholder="제목을 입력하세요 (최대 20자)" />
+      <input class="field" id="ddayDate" type="date" />
+      <h4>배경 색</h4>
+      <div class="swatches" id="ddayBgSwatches"></div>
+      <div class="dday-form-cols">
+        <div>
+          <h4>D-Day 글자 색</h4>
+          <div class="dots" id="ddayFgSwatches"></div>
+        </div>
+        <div>
+          <h4>D-Day 글자 위치</h4>
+          <label class="radio-pill"><input type="radio" name="ddayPos" value="top" checked /> <span>상단 배치</span></label>
+          <label class="radio-pill"><input type="radio" name="ddayPos" value="bottom" /> <span>하단 배치</span></label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-modal-close>취소</button>
+        <button class="btn btn-primary" id="ddaySave">만들기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 돌림판 ===== -->
+  <section class="panel" id="roulettePanel" hidden aria-label="돌림판">
+    <header class="panel-head">
+      <h2><span class="ph-ico">🎡</span>돌림판</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-expand title="크게 보기">⤢</button>
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-body roulette-layout">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer" aria-hidden="true"></div>
+        <canvas id="wheelCanvas" width="640" height="640" aria-label="돌림판"></canvas>
+        <button class="wheel-center" id="wheelSpin">돌리기</button>
+      </div>
+      <aside class="roulette-side">
+        <div class="side-card grow">
+          <h3>항목 <small id="wheelCount"></small></h3>
+          <textarea class="field area" id="wheelItems" placeholder="한 줄에 하나씩 입력하세요&#10;예) 청소 당번&#10;발표하기"></textarea>
+          <div class="row-btns">
+            <button class="btn btn-soft" id="wheelLoadStudents">👩‍🎓 학생 명단 불러오기</button>
+            <button class="btn btn-soft" id="wheelShuffle">🔀 섞기</button>
+          </div>
+          <label class="check"><input type="checkbox" id="wheelRemove" /> <span>당첨된 항목은 다음 판에서 빼기</span></label>
+        </div>
+        <div class="wheel-result" id="wheelResult">돌림판을 돌려 보세요!</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== 설정 ===== -->
+  <section class="panel" id="settingsPanel" hidden aria-label="설정">
+    <header class="panel-head">
+      <h2><span class="ph-ico">⚙️</span>설정</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-body settings-layout">
+      <nav class="settings-nav">
+        <button class="snav active" data-stab="schedule">🕘 시간표</button>
+        <button class="snav" data-stab="sound">🔔 알림 · 소리</button>
+        <button class="snav" data-stab="students">👩‍🎓 학생 명단</button>
+        <button class="snav" data-stab="general">🖥️ 일반</button>
+      </nav>
+      <div class="settings-content">
+        <!-- 시간표 -->
+        <section class="stab" data-stab-panel="schedule">
+          <h3>수업 시간표</h3>
+          <p class="mini-help">수업(교시) 시작·끝 시간을 넣으면 사이 시간은 자동으로 <b>쉬는 시간</b>이 돼요. 30분 이상 비면 점심시간으로 표시해요.</p>
+          <div class="sched-table-wrap">
+            <table class="sched-table">
+              <thead><tr><th>이름</th><th>시작</th><th>끝</th><th>수업</th><th>다음 쉬는 시간</th><th></th></tr></thead>
+              <tbody id="schedRows"></tbody>
+            </table>
+          </div>
+          <div class="row-btns">
+            <button class="btn btn-soft" id="schedAdd">＋ 교시 추가</button>
+            <button class="btn btn-soft" id="schedSort">⇅ 시간순 정렬</button>
+          </div>
+          <details class="gen-box">
+            <summary>⚡ 시간표 한 번에 만들기</summary>
+            <div class="gen-grid">
+              <label>1교시 시작 <input class="field sm" type="time" id="genStart" value="09:00" /></label>
+              <label>수업 시간(분) <input class="field sm" type="number" id="genClass" value="40" min="5" max="120" /></label>
+              <label>쉬는 시간(분) <input class="field sm" type="number" id="genBreak" value="10" min="0" max="60" /></label>
+              <label>교시 수 <input class="field sm" type="number" id="genCount" value="6" min="1" max="12" /></label>
+              <label>점심 전 교시 <input class="field sm" type="number" id="genLunchAfter" value="4" min="0" max="12" /></label>
+              <label>점심 시간(분) <input class="field sm" type="number" id="genLunch" value="50" min="0" max="120" /></label>
+            </div>
+            <button class="btn btn-primary" id="genApply">이대로 만들기</button>
+          </details>
+          <label class="check"><input type="checkbox" id="skipWeekend" /> <span>토·일요일에는 종을 울리지 않기</span></label>
+        </section>
+
+        <!-- 알림·소리 -->
+        <section class="stab" data-stab-panel="sound" hidden>
+          <h3>종소리 켜기 / 끄기</h3>
+          <div class="toggle-list">
+            <label class="switch-row"><span>🔔 수업 시작 시종음</span><input type="checkbox" class="switch" data-sound-setting="classStart" /></label>
+            <label class="switch-row"><span>🎵 쉬는 시간 시작 종소리</span><input type="checkbox" class="switch" data-sound-setting="breakStart" /></label>
+            <label class="switch-row"><span>⏰ 수업 1분 전 알림음 + 빨간 깜빡임</span><input type="checkbox" class="switch" data-sound-setting="warning" /></label>
+            <label class="switch-row"><span>🗣️ 1분 전 음성 안내 “쉬는 시간 1분 전입니다”</span><input type="checkbox" class="switch" data-sound-setting="voice" /></label>
+            <label class="switch-row"><span>🪟 알림 때 창을 맨 앞으로 띄우기</span><input type="checkbox" class="switch" data-sound-setting="bringToFront" /></label>
+          </div>
+          <h3>종소리 종류</h3>
+          <div class="chime-styles" id="chimeStyles">
+            <label class="radio-card"><input type="radio" name="chimeStyle" value="xylophone" /><span>🎹 귀여운 실로폰</span></label>
+            <label class="radio-card"><input type="radio" name="chimeStyle" value="musicbox" /><span>🎁 오르골</span></label>
+            <label class="radio-card"><input type="radio" name="chimeStyle" value="school" /><span>🏫 딩동댕동 학교종</span></label>
+          </div>
+          <h3>크기</h3>
+          <div class="volume-row">🔈 <input type="range" id="volume" min="0" max="100" /> 🔊 <b id="volumeVal"></b></div>
+          <h3>미리 듣기</h3>
+          <div class="row-btns">
+            <button class="btn btn-soft" data-preview="classStart">수업 시작종</button>
+            <button class="btn btn-soft" data-preview="breakStart">쉬는 시간종</button>
+            <button class="btn btn-soft" data-preview="warning">1분 전 알림</button>
+          </div>
+        </section>
+
+        <!-- 학생 명단 -->
+        <section class="stab" data-stab-panel="students" hidden>
+          <h3>학생 명단 <small id="studentTotal"></small></h3>
+          <p class="mini-help">CSV 파일은 <b>번호, 이름</b> 순서예요. 세 번째 칸에 <b>성별(남/여)</b>을 넣으면 남·여 따로 뽑기도 할 수 있어요. 엑셀에서 “CSV(쉼표로 분리)”로 저장하면 돼요.</p>
+          <div class="row-btns">
+            <label class="btn btn-primary file-btn">📂 CSV 파일 불러오기<input type="file" id="csvInput" accept=".csv,text/csv,.txt" hidden /></label>
+            <button class="btn btn-soft" id="csvSample">⬇️ 예시 CSV 받기</button>
+            <button class="btn btn-soft" id="studentAdd">＋ 직접 추가</button>
+            <button class="btn btn-danger-soft" id="studentClear">전체 삭제</button>
+          </div>
+          <div class="sched-table-wrap">
+            <table class="sched-table student-table">
+              <thead><tr><th>번호</th><th>이름</th><th>성별</th><th></th></tr></thead>
+              <tbody id="studentRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 일반 -->
+        <section class="stab" data-stab-panel="general" hidden>
+          <h3>컴퓨터 · 창</h3>
+          <div class="toggle-list">
+            <label class="switch-row"><span>🖥️ 컴퓨터를 켜면 자동으로 실행</span><input type="checkbox" class="switch" id="autoStart" /></label>
+            <label class="switch-row"><span>📌 항상 다른 창 위에 고정</span><input type="checkbox" class="switch" id="alwaysOnTop" /></label>
+            <label class="switch-row"><span>🔽 닫기(✕)를 누르면 작업표시줄 트레이로 숨기기</span><input type="checkbox" class="switch" id="closeToTray" /></label>
+          </div>
+          <p class="mini-help" id="autoStartHelp">컴퓨터를 끌 때는 설정과 창 위치가 자동 저장되고, 다시 켜면 그대로 실행돼요.</p>
+          <h3>메인 화면 문구</h3>
+          <input class="field" id="mainMessage" maxlength="40" />
+          <h3>시계 표시</h3>
+          <div class="toggle-list">
+            <label class="switch-row"><span>오전/오후 12시간제로 보기</span><input type="checkbox" class="switch" id="hour12" /></label>
+          </div>
+          <h3>데이터</h3>
+          <div class="row-btns">
+            <button class="btn btn-soft" id="backupExport">💾 설정 백업 파일 저장</button>
+            <label class="btn btn-soft file-btn">📥 백업 파일 불러오기<input type="file" id="backupImport" accept=".json,application/json" hidden /></label>
+            <button class="btn btn-danger-soft" id="appQuit">⏻ 프로그램 완전히 종료</button>
+          </div>
+          <p class="mini-help version" id="appVersion"></p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/dday.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/picker.js"></script>
+  <script src="js/roulette.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

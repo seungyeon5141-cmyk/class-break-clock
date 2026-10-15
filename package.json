@@ -1,0 +1,68 @@
+{
+  "name": "class-break-clock",
+  "productName": "쉬는시간 알리미",
+  "version": "1.0.0",
+  "description": "교실 바탕화면용 쉬는시간 알리미 시계 · 타이머 · 학생 뽑기 · 디데이 · 돌림판",
+  "main": "main.js",
+  "author": "seungyeon5141",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.js && for f in src/js/*.js; do node --check \"$f\" || exit 1; done",
+    "dist:win": "electron-builder --win nsis --x64",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "kr.classroom.breakclock",
+    "productName": "쉬는시간 알리미",
+    "artifactName": "ClassBreakClock-Setup-${version}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "쉬는시간 알리미",
+      "runAfterFinish": true,
+      "installerLanguages": [
+        "ko_KR"
+      ],
+      "language": "1042"
+    },
+    "mac": {
+      "icon": "build/icon.png",
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Education"
+    }
+  }
+}
