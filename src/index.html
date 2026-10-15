@@ -48,17 +48,17 @@
         <span class="clock-digits" id="clockDigits">00:00:00</span>
       </div>
       <div class="warning-sub" id="warningSub" hidden>현재 시각 <span id="warningNow"></span></div>
-      <p class="clock-message" id="clockMessage">수업 시간 1분 전에는 자리에 앉아 교과서를 준비합니다</p>
+      <p class="clock-message"><img class="cm-icon" src="assets/icons/books.webp" alt="" draggable="false" /><span id="clockMessage">수업 시간 1분 전에는 자리에 앉아 교과서를 준비합니다</span></p>
 
       <div class="bell-toggles" role="group" aria-label="종소리 켜기/끄기">
         <button class="bell-toggle" data-sound="classStart">
-          <span class="bt-emoji">🔔</span><span class="bt-label">수업 시작종</span><span class="bt-state"></span>
+          <span class="bt-emoji"><img src="assets/icons/bell.webp" alt="" draggable="false" /></span><span class="bt-label">수업 시작종</span><span class="bt-state"></span>
         </button>
         <button class="bell-toggle" data-sound="breakStart">
-          <span class="bt-emoji">🎵</span><span class="bt-label">쉬는 시간종</span><span class="bt-state"></span>
+          <span class="bt-emoji"><img src="assets/icons/chime.webp" alt="" draggable="false" /></span><span class="bt-label">쉬는 시간종</span><span class="bt-state"></span>
         </button>
         <button class="bell-toggle" data-sound="warning">
-          <span class="bt-emoji">⏰</span><span class="bt-label">1분 전 알림</span><span class="bt-state"></span>
+          <span class="bt-emoji"><img src="assets/icons/alarm.webp" alt="" draggable="false" /></span><span class="bt-label">1분 전 알림</span><span class="bt-state"></span>
         </button>
       </div>
     </section>
@@ -66,14 +66,14 @@
     <section class="timeline" id="timeline" aria-label="오늘 시간표"></section>
 
     <nav class="dock" aria-label="도구">
-      <button class="dock-btn" data-open="timerPanel"><span class="dock-ico">⏳</span><span>타이머</span></button>
-      <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico">🎲</span><span>뽑기</span></button>
-      <button class="dock-btn" data-open="racePanel"><span class="dock-ico">🏁</span><span>뽑기 레이스</span></button>
-      <button class="dock-btn" data-open="noticePanel"><span class="dock-ico">📌</span><span>공지</span></button>
-      <button class="dock-btn" data-open="popupPanel"><span class="dock-ico">📢</span><span>팝업</span></button>
-      <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico">📅</span><span>디데이</span></button>
-      <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico">🎡</span><span>돌림판</span></button>
-      <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico">⚙️</span><span>설정</span></button>
+      <button class="dock-btn" data-open="timerPanel"><span class="dock-ico"><img src="assets/icons/timer.webp" alt="" draggable="false" /></span><span>타이머</span></button>
+      <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico"><img src="assets/icons/picker.webp" alt="" draggable="false" /></span><span>뽑기</span></button>
+      <button class="dock-btn" data-open="racePanel"><span class="dock-ico"><img src="assets/icons/race.webp" alt="" draggable="false" /></span><span>뽑기 레이스</span></button>
+      <button class="dock-btn" data-open="noticePanel"><span class="dock-ico"><img src="assets/icons/notice.webp" alt="" draggable="false" /></span><span>공지</span></button>
+      <button class="dock-btn" data-open="popupPanel"><span class="dock-ico"><img src="assets/icons/popup.webp" alt="" draggable="false" /></span><span>팝업</span></button>
+      <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico"><img src="assets/icons/dday.webp" alt="" draggable="false" /></span><span>디데이</span></button>
+      <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico"><img src="assets/icons/roulette.webp" alt="" draggable="false" /></span><span>돌림판</span></button>
+      <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico"><img src="assets/icons/settings.webp" alt="" draggable="false" /></span><span>설정</span></button>
     </nav>
   </main>
 
@@ -83,7 +83,7 @@
   <!-- ===== 타이머 ===== -->
   <section class="panel" id="timerPanel" hidden aria-label="타이머">
     <header class="panel-head">
-      <h2><span class="ph-ico">⏳</span>타이머</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/timer.webp" alt="" draggable="false" /></span>타이머</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-expand title="크게 보기">⤢</button>
         <button class="ph-btn" data-close title="닫기">✕</button>
@@ -171,7 +171,7 @@
   <!-- ===== 뽑기 ===== -->
   <section class="panel" id="pickerPanel" hidden aria-label="뽑기">
     <header class="panel-head">
-      <h2><span class="ph-ico">🎲</span>뽑기</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/picker.webp" alt="" draggable="false" /></span>뽑기</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-expand title="크게 보기">⤢</button>
         <button class="ph-btn" data-close title="닫기">✕</button>
@@ -265,7 +265,7 @@
   <!-- ===== 디데이 ===== -->
   <section class="panel panel-narrow" id="ddayPanel" hidden aria-label="디데이">
     <header class="panel-head">
-      <h2><span class="ph-ico">📅</span>디데이</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/dday.webp" alt="" draggable="false" /></span>디데이</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-close title="닫기">✕</button>
       </div>
@@ -313,7 +313,7 @@
   <!-- ===== 긴급 팝업 ===== -->
   <section class="panel panel-narrow" id="popupPanel" hidden aria-label="팝업">
     <header class="panel-head">
-      <h2><span class="ph-ico">📢</span>팝업</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/popup.webp" alt="" draggable="false" /></span>팝업</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-close title="닫기">✕</button>
       </div>
@@ -354,7 +354,7 @@
   <!-- ===== 공지사항 ===== -->
   <section class="panel panel-narrow" id="noticePanel" hidden aria-label="공지사항">
     <header class="panel-head">
-      <h2><span class="ph-ico">📌</span>공지사항</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/notice.webp" alt="" draggable="false" /></span>공지사항</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-close title="닫기">✕</button>
       </div>
@@ -428,7 +428,7 @@
   <!-- ===== 뽑기 레이스 ===== -->
   <section class="panel race-panel" id="racePanel" hidden aria-label="뽑기 레이스">
     <header class="panel-head">
-      <h2><span class="ph-ico">🏁</span>뽑기 레이스</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/race.webp" alt="" draggable="false" /></span>뽑기 레이스</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-expand title="크게 보기">⤢</button>
         <button class="ph-btn" data-close title="닫기">✕</button>
@@ -496,7 +496,7 @@
   <!-- ===== 돌림판 ===== -->
   <section class="panel" id="roulettePanel" hidden aria-label="돌림판">
     <header class="panel-head">
-      <h2><span class="ph-ico">🎡</span>돌림판</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/roulette.webp" alt="" draggable="false" /></span>돌림판</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-expand title="크게 보기">⤢</button>
         <button class="ph-btn" data-close title="닫기">✕</button>
@@ -526,7 +526,7 @@
   <!-- ===== 설정 ===== -->
   <section class="panel" id="settingsPanel" hidden aria-label="설정">
     <header class="panel-head">
-      <h2><span class="ph-ico">⚙️</span>설정</h2>
+      <h2><span class="ph-ico"><img src="assets/icons/settings.webp" alt="" draggable="false" /></span>설정</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-close title="닫기">✕</button>
       </div>

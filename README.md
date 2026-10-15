@@ -76,19 +76,20 @@
 - 📌 항상 위에 고정, 전체 화면, 최대화
 
 ### 🎨 디자인
+- 하단 메뉴·종소리 버튼·창 제목·상태 표시에 3D 파스텔 아이콘 (src/assets/icons)
 - 메인 화면·설정은 연보라·핑크, 각 도구 창은 저마다 다른 파스텔 색 (타이머 하늘·민트, 뽑기 피치·코랄, 레이스 라임·청록, 공지 레몬·오렌지, 팝업 체리, 디데이 페리윙클, 돌림판 라일락)
 
 ## 설치 파일 만들기
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.12.0.exe`가 들어 있어요
-3. `v1.12.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.13.0.exe`가 들어 있어요
+3. `v1.13.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.12.0.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.13.0.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.

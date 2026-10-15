@@ -134,11 +134,13 @@
       digits.textContent = fmtRemain(st.until);
       $('#warningSub').hidden = false;
       $('#warningNow').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      $('#clockMessage').textContent = `수업 시간 1분 전입니다! 자리에 앉아 ${st.next.name} 교과서를 준비해요 📚`;
+      $('#clockMessage').textContent = `수업 시간 1분 전입니다! 자리에 앉아 ${st.next.name} 교과서를 준비해요`;
+      $('.cm-icon').src = 'assets/icons/alarm.webp';
     } else {
       digits.innerHTML = fmtClock(now);
       $('#warningSub').hidden = true;
       $('#clockMessage').textContent = Store.data.general.message || Store.defaults.general.message;
+      $('.cm-icon').src = 'assets/icons/books.webp';
     }
 
     $('#dateLine').textContent =
@@ -147,17 +149,17 @@
     let chip;
     switch (st.type) {
       case 'class':
-        chip = `📚 ${esc(st.period.name)} 수업 중<span class="sc-sub">끝나기까지 ${fmtRemain(st.remain)}</span>`; break;
+        chip = `<img class="sc-icon" src="assets/icons/books.webp" alt="" />${esc(st.period.name)} 수업 중<span class="sc-sub">끝나기까지 ${fmtRemain(st.remain)}</span>`; break;
       case 'break':
-        chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
-          : `☕ 쉬는 시간<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`; break;
+        chip = warning ? `<img class="sc-icon" src="assets/icons/alarm.webp" alt="" />곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
+          : `<img class="sc-icon" src="assets/icons/break.webp" alt="" />쉬는 시간<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`; break;
       case 'lunch':
-        if (warning) chip = `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`;
+        if (warning) chip = `<img class="sc-icon" src="assets/icons/alarm.webp" alt="" />곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`;
         else if (st.next) chip = `🍱 ${esc(st.period ? st.period.name : '점심 시간')}<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`;
         else chip = `🍱 ${esc(st.period ? st.period.name : '점심 시간')}<span class="sc-sub">끝나기까지 ${fmtRemain(st.remain)}</span>`;
         break;
       case 'before':
-        chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
+        chip = warning ? `<img class="sc-icon" src="assets/icons/alarm.webp" alt="" />곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
           : `🌤️ 좋은 아침이에요<span class="sc-sub">${esc(st.next.name)} ${esc(st.next.start)} 시작</span>`; break;
       case 'after': chip = '🎒 오늘 수업 끝! 수고했어요'; break;
       case 'weekend':

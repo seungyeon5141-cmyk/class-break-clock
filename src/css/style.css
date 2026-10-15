@@ -1117,3 +1117,18 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .voice-type-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--r-sm); background: var(--lav-50); border: 2px solid var(--lav-100); font-size: 15px; font-weight: 600; }
 .voice-type-row .radio-pill { margin-top: 0; }
 .voice-type-row .btn { padding: 7px 14px; }
+
+/* ===== 3D 파스텔 아이콘 ===== */
+.dock-ico { display: grid; place-items: center; }
+.dock-ico img { width: 52px; height: 52px; border-radius: 16px; display: block; box-shadow: 0 4px 12px rgba(157, 124, 245, 0.18); transition: transform 0.2s; }
+.dock-btn:hover .dock-ico img { transform: translateY(-3px) rotate(-4deg) scale(1.06); }
+.dock-btn { gap: 6px; }
+.bt-emoji { display: grid; place-items: center; }
+.bt-emoji img { width: 32px; height: 32px; border-radius: 10px; display: block; }
+.bell-toggle { padding-left: 8px; }
+.panel .ph-ico { background: none; box-shadow: none; width: 46px; height: 46px; }
+.ph-ico img { width: 46px; height: 46px; border-radius: 14px; display: block; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); }
+.sc-icon { width: 1.5em; height: 1.5em; border-radius: 0.4em; vertical-align: -0.38em; margin-right: 0.35em; }
+.clock-message { display: flex; align-items: center; justify-content: center; gap: 0.45em; }
+.cm-icon { width: 1.5em; height: 1.5em; border-radius: 0.4em; flex: none; }
+@media (max-height: 640px) { .dock-ico img { width: 40px; height: 40px; } }
