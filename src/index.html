@@ -38,6 +38,9 @@
     <!-- 디데이 위젯 (왼쪽 상단 고정) -->
     <section class="dday-pins" id="ddayPins" aria-label="디데이"></section>
 
+    <!-- 공지사항 포스트잇 (끌어서 위치 이동, 두 번 눌러 수정) -->
+    <section class="notice-layer" id="noticeLayer" aria-label="공지사항"></section>
+
     <section class="clock-area">
       <div class="status-chip" id="statusChip">시간표를 불러오는 중…</div>
       <div class="date-line" id="dateLine"></div>
@@ -65,6 +68,7 @@
     <nav class="dock" aria-label="도구">
       <button class="dock-btn" data-open="timerPanel"><span class="dock-ico">⏳</span><span>타이머</span></button>
       <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico">🎲</span><span>뽑기</span></button>
+      <button class="dock-btn" data-open="noticePanel"><span class="dock-ico">📌</span><span>공지</span></button>
       <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico">📅</span><span>디데이</span></button>
       <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico">🎡</span><span>돌림판</span></button>
       <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico">⚙️</span><span>설정</span></button>
@@ -241,6 +245,54 @@
     </div>
   </div>
 
+  <!-- ===== 공지사항 ===== -->
+  <section class="panel panel-narrow" id="noticePanel" hidden aria-label="공지사항">
+    <header class="panel-head">
+      <h2><span class="ph-ico">📌</span>공지사항</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-notice">💡 <b>화면에서 보기</b>를 켠 공지는 메인 화면에 포스트잇으로 붙어요. 포스트잇은 <b>끌어서 옮기고</b>, <b>두 번 눌러 수정</b>할 수 있어요.</div>
+    <div class="panel-body">
+      <div class="dday-list-head">
+        <span><b id="noticeCount">0</b>/20</span>
+        <button class="link-btn" id="noticeResetPos">위치 처음으로</button>
+      </div>
+      <div class="notice-list" id="noticeList"></div>
+      <button class="fab" id="noticeAdd" title="공지 새로 쓰기" aria-label="공지 새로 쓰기">＋</button>
+    </div>
+  </section>
+
+  <!-- 공지 쓰기/수정 모달 -->
+  <div class="modal" id="noticeModal" hidden>
+    <div class="modal-card notice-modal-card">
+      <button class="modal-x" data-modal-close aria-label="닫기">✕</button>
+      <h3 id="noticeModalTitle">공지 새로 쓰기</h3>
+      <div class="notice-preview-wrap"><div class="postit" id="noticePreview"></div></div>
+      <textarea class="field area notice-text" id="noticeText" maxlength="300" placeholder="학생들에게 보여줄 공지를 입력하세요 (줄바꿈 가능)"></textarea>
+      <h4>포스트잇 색</h4>
+      <div class="swatches" id="noticeBgSwatches"></div>
+      <div class="dday-form-cols">
+        <div>
+          <h4>글자 색</h4>
+          <div class="dots" id="noticeFgSwatches"></div>
+        </div>
+        <div>
+          <h4>글꼴</h4>
+          <label class="radio-pill"><input type="radio" name="noticeFont" value="main" checked /> <span>페이퍼로지</span></label>
+          <label class="radio-pill"><input type="radio" name="noticeFont" value="small" /> <span class="font-small-sample">온글잎 의연체</span></label>
+        </div>
+      </div>
+      <h4>글자 크기 <b id="noticeSizeVal"></b></h4>
+      <div class="volume-row">가 <input type="range" id="noticeSize" min="16" max="96" step="2" /> <span class="big-ga">가</span></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-modal-close>취소</button>
+        <button class="btn btn-primary" id="noticeSave">붙이기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 돌림판 ===== -->
   <section class="panel" id="roulettePanel" hidden aria-label="돌림판">
     <header class="panel-head">
@@ -394,6 +446,7 @@
   <script src="js/sound.js"></script>
   <script src="js/clock.js"></script>
   <script src="js/dday.js"></script>
+  <script src="js/notice.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/picker.js"></script>
   <script src="js/roulette.js"></script>

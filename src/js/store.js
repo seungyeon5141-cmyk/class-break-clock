@@ -29,6 +29,7 @@
     },
     students: [],
     ddays: [],
+    notices: [],
     picker: { count: 1, noRepeat: true, gender: 'all', pickedIds: [], excludedIds: [], history: [] },
     timer: { title: '쉬는 시간', seconds: 300, tick: true, endSound: true },
     roulette: { items: ['칭찬 스티커', '발표하기', '청소 당번', '선생님 도우미', '자유 시간', '한 번 더!'], removeWinner: false },

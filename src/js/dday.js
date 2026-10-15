@@ -55,7 +55,8 @@
   function renderPins() {
     const shown = Store.data.ddays.filter((d) => d.show);
     $('#ddayPins').innerHTML = shown.map(cardHtml).join('');
-    document.body.classList.toggle('has-pins', shown.length > 0);
+    if (window.Notice) Notice.updateBodyClass();
+    else document.body.classList.toggle('has-pins', shown.length > 0);
   }
 
   function renderList() {

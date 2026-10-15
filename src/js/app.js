@@ -35,6 +35,7 @@
     initTitlebar();
     Settings.init();
     DDay.init();
+    Notice.init();
     Timer.init();
     Picker.init();
     Roulette.init();
