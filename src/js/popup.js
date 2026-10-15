@@ -24,6 +24,52 @@
     { v: 60, label: '1분' },
   ];
 
+  // 글자 애니메이션 효과
+  const EFFECTS = [
+    { v: 'none', label: '효과 없음', icon: '⏹️' },
+    { v: 'bounce', label: '톡톡 튀기', icon: '🏀' },
+    { v: 'spin', label: '360도 회전', icon: '🌀' },
+    { v: 'drop', label: '위에서 떨어지기', icon: '⬇️' },
+    { v: 'fly', label: '날아오기', icon: '🚀' },
+    { v: 'zoom', label: '쾅! 커지기', icon: '💥' },
+    { v: 'wave', label: '물결', icon: '🌊' },
+    { v: 'shake', label: '흔들흔들', icon: '🫨' },
+    { v: 'jelly', label: '말랑 젤리', icon: '🍮' },
+    { v: 'typing', label: '한 글자씩', icon: '⌨️' },
+    { v: 'rainbow', label: '무지개', icon: '🌈' },
+    { v: 'heart', label: '두근두근', icon: '💓' },
+  ];
+
+  // 글자를 한 자씩 나눠 효과를 순서대로 주기 (단어는 줄바꿈으로 안 쪼개지게 묶음)
+  function fillChars(el, text, effect) {
+    el.textContent = '';
+    el.className = el.className.replace(/\bfx-\S+/g, '').trim();
+    if (!effect || effect === 'none') { el.textContent = text; return; }
+    el.classList.add(`fx-${effect}`);
+    // 미리보기처럼 grid로 가운데 정렬하는 상자에서도 한 덩어리로 보이게 감싸기
+    const wrap = document.createElement('span');
+    wrap.className = 'pfx';
+    el.appendChild(wrap);
+    let i = 0;
+    text.split(/(\s+)/).forEach((part) => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) { wrap.appendChild(document.createTextNode(part)); return; }
+      const word = document.createElement('span');
+      word.className = 'pw';
+      Array.from(part).forEach((ch) => {
+        const c = document.createElement('span');
+        c.className = 'pc';
+        c.textContent = ch;
+        c.style.setProperty('--i', i);
+        c.style.setProperty('--r', ((i * 37) % 7) - 3);
+        i += 1;
+        word.appendChild(c);
+      });
+      wrap.appendChild(word);
+    });
+    el.style.setProperty('--n', i);
+  }
+
   const cfg = () => Store.data.popup;
   let closeTimer = null;
 
@@ -52,13 +98,16 @@
     const box = $('#popupText');
     box.style.fontFamily = font.css;
     box.style.fontWeight = font.weight;
-    box.textContent = msg;
+    fillChars(box, msg, cfg().effect);
+    const fxClass = Array.from(box.classList).find((k) => k.startsWith('fx-'));
+    if (fxClass) box.classList.remove(fxClass);
     UI.closePanel();
     ov.hidden = false;
     ov.classList.remove('show');
     void ov.offsetWidth;
     ov.classList.add('show');
     fit();
+    if (fxClass) box.classList.add(fxClass);
 
     clearTimeout(closeTimer);
     const sec = Number(cfg().duration) || 0;
@@ -95,6 +144,8 @@
     $('#popupDurations').innerHTML = DURATIONS.map((d) =>
       `<button class="seg${Number(c.duration) === d.v ? ' active' : ''}" data-sec="${d.v}">${d.label}</button>`).join('');
     $('#popupSound').checked = !!c.sound;
+    $('#popupEffects').innerHTML = EFFECTS.map((f) =>
+      `<button class="pe-chip${(c.effect || 'none') === f.v ? ' active' : ''}" data-fx="${f.v}"><span>${f.icon}</span>${f.label}</button>`).join('');
     preview();
   }
 
@@ -107,7 +158,7 @@
     pv.style.color = theme.fg;
     pv.style.fontFamily = font.css;
     pv.style.fontWeight = font.weight;
-    pv.textContent = c.text.trim() || '여기에 크게 보여요';
+    fillChars(pv, c.text.trim() || '여기에 크게 보여요', c.effect);
   }
 
   function init() {
@@ -148,6 +199,10 @@
     $('#popupFonts').addEventListener('click', (e) => {
       const b = e.target.closest('[data-font]');
       if (b) { c.font = b.dataset.font; Store.save(); renderPanel(); }
+    });
+    $('#popupEffects').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-fx]');
+      if (b) { c.effect = b.dataset.fx; Store.save(); renderPanel(); }
     });
     $('#popupDurations').addEventListener('click', (e) => {
       const b = e.target.closest('[data-sec]');

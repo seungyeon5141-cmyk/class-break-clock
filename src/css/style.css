@@ -242,7 +242,7 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
 .clock {
   margin: 4px 0 0;
   font-family: var(--font-main);
-  font-size: clamp(96px, min(19.5vw, 31vh), 360px);
+  font-size: clamp(84px, calc(min(19.5vw, 31vh) - 13px), 347px);
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -274,8 +274,8 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
 .warning-sub { margin-top: 6px; font-size: clamp(22px, 2.3vw, 32px); color: var(--ink-soft); }
 
 /* 디데이가 왼쪽 위에 있으면 시계가 겹치지 않게 크기를 맞춤 */
-body.has-pins .clock { font-size: clamp(72px, min(19.5vw, 31vh, calc((100vw - 520px) / 4.5)), 360px); }
-body.has-pins.warning .clock { font-size: clamp(96px, min(19.5vw, 31vh, calc((100vw - 520px) / 2.9)), 360px); }
+body.has-pins .clock { font-size: clamp(64px, calc(min(19.5vw, 31vh, calc((100vw - 520px) / 4.5)) - 13px), 347px); }
+body.has-pins.warning .clock { font-size: clamp(84px, calc(min(19.5vw, 31vh, calc((100vw - 520px) / 2.9)) - 13px), 347px); }
 
 /* 숫자 입력칸은 읽기 쉬운 메인 글꼴 */
 input[type='time'], input[type='date'], input[type='number'] { font-variant-numeric: tabular-nums; }
@@ -558,7 +558,7 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
   animation: rise 0.25s ease;
 }
 .panel-narrow { width: min(620px, calc(100vw - 40px)); }
-.panel.expanded { top: 46px; width: 100vw; height: calc(100vh - 46px); max-height: none; border-radius: 0; }
+.panel.expanded { top: 46px !important; left: 50% !important; transform: translateX(-50%) !important; width: 100vw; height: calc(100vh - 46px); max-height: none; border-radius: 0; }
 @keyframes rise { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .panel-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -1154,3 +1154,77 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .dday-item.dragging { opacity: 0.4; }
 .dday-item.drop-before { box-shadow: 0 -4px 0 var(--lav-500); border-radius: 12px; }
 .dday-item.drop-after { box-shadow: 0 4px 0 var(--lav-500); border-radius: 12px; }
+
+/* ===== 창 옮기기 ===== */
+.panel-head { cursor: grab; touch-action: none; user-select: none; }
+.panel.dragging .panel-head { cursor: grabbing; }
+.panel.moved { transform: none; animation: none; }
+.panel.moved.opening { animation: riseMoved 0.25s ease; }
+.panel.dragging { animation: none; box-shadow: 0 30px 70px rgba(120, 86, 200, 0.35); transition: box-shadow 0.15s; }
+.panel.expanded .panel-head { cursor: default; }
+@keyframes riseMoved { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ===== 더 크게 느껴지는 클릭 반응 ===== */
+.has-ripple, .btn, .dock-btn, .seg, .mode-tab, .bell-toggle, .round-btn, .bgm-btn, .mini-btn, .adj, .step, .snav, .profile-tab, .pp-use, .pf-chip, .s-chip, .secret-no, .day-chip, .fab, .wheel-center, .gear-btn { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0) 70%);
+  transform: scale(0); animation: ripple 0.6s ease-out forwards;
+}
+.btn-ghost .ripple, .btn-soft .ripple, .seg .ripple, .mini-btn .ripple, .adj .ripple, .s-chip .ripple, .secret-no .ripple, .day-chip .ripple, .step .ripple, .snav .ripple, .dock-btn .ripple, .bell-toggle .ripple, .profile-tab .ripple, .pf-chip .ripple, .round-btn .ripple {
+  background: radial-gradient(circle, rgba(244, 123, 182, 0.35) 0%, rgba(183, 156, 255, 0.2) 45%, rgba(183, 156, 255, 0) 70%);
+}
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+.btn, .dock-btn, .mode-tab, .bell-toggle, .round-btn, .bgm-btn, .mini-btn, .adj, .step, .preset-grid button, .profile-tab, .pp-chip, .pf-chip, .s-chip, .secret-no, .day-chip, .fab, .gear-btn, .wheel-center, .seg, .snav {
+  transition: transform 0.16s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.16s, filter 0.16s, background 0.16s, border-color 0.16s;
+}
+.btn:hover:not(:disabled), .mode-tab:hover, .bell-toggle:hover, .round-btn:hover, .bgm-btn:hover, .profile-tab:hover, .fab:hover, .gear-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 24px rgba(244, 123, 182, 0.28); }
+.mini-btn:hover, .adj:hover, .step:hover, .preset-grid button:hover, .pf-chip:hover, .s-chip:hover, .secret-no:hover, .day-chip:hover, .seg:hover, .snav:hover { transform: translateY(-2px) scale(1.05); }
+.dock-btn:hover { transform: translateY(-5px) scale(1.06); background: var(--grad-soft); box-shadow: 0 10px 22px rgba(244, 123, 182, 0.22); }
+.btn:active:not(:disabled), .dock-btn:active, .mode-tab:active, .bell-toggle:active, .round-btn:active, .bgm-btn:active, .mini-btn:active, .adj:active, .step:active, .preset-grid button:active,
+.profile-tab:active, .pf-chip:active, .s-chip:active, .secret-no:active, .day-chip:active, .fab:active, .gear-btn:active, .seg:active, .snav:active {
+  transform: scale(0.9); filter: brightness(0.96); transition-duration: 0.06s;
+}
+.wheel-center:hover:not(:disabled) { transform: scale(1.08); }
+.wheel-center:active:not(:disabled) { transform: scale(0.9); }
+:focus-visible { outline: 3px solid var(--pink-400); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .ripple { display: none; }
+  .btn, .dock-btn, .mode-tab, .bell-toggle { transition: none; }
+}
+
+/* ===== 팝업 글자 효과 ===== */
+.pe-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.pe-chip { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 12px; background: var(--lav-50); border: 2px solid var(--lav-100); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.pe-chip span { font-size: 17px; }
+.pe-chip.active { border-color: var(--lav-400); background: #fff; box-shadow: 0 2px 8px rgba(255, 111, 138, 0.25); }
+.popup-overlay { overflow: hidden; }
+.pw { display: inline-block; white-space: nowrap; }
+.pc { display: inline-block; will-change: transform; }
+/* 효과가 있을 때는 전체 통통 효과 대신 글자별 효과만 */
+.popup-overlay.show .popup-text[class*='fx-'] { animation: none; }
+.fx-bounce .pc { animation: fxBounce 1.1s cubic-bezier(0.3, 0, 0.3, 1) calc(var(--i) * 80ms) infinite; }
+@keyframes fxBounce { 0%, 55%, 100% { transform: translateY(0) scale(1, 1); } 15% { transform: translateY(-28%) scale(0.95, 1.08); } 30% { transform: translateY(0) scale(1.1, 0.9); } 40% { transform: translateY(-8%); } }
+.fx-spin .pc { animation: fxSpin 0.9s cubic-bezier(0.3, 1.4, 0.5, 1) calc(var(--i) * 70ms) both; }
+@keyframes fxSpin { from { transform: rotate(-360deg) scale(0); opacity: 0; } to { transform: rotate(0) scale(1); opacity: 1; } }
+.fx-drop .pc { animation: fxDrop 0.9s cubic-bezier(0.25, 1.6, 0.45, 1) calc(var(--i) * 75ms) both; }
+@keyframes fxDrop { from { transform: translateY(-120vh) rotate(calc(var(--r) * 12deg)); } 70% { transform: translateY(6%); } to { transform: translateY(0); } }
+.fx-fly .pc { animation: fxFly 0.8s cubic-bezier(0.2, 1.3, 0.4, 1) calc(var(--i) * 70ms) both; }
+@keyframes fxFly { from { transform: translate(calc(var(--r) * 40vw + 60vw), calc(var(--r) * 20vh)) rotate(calc(var(--r) * 60deg)) scale(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
+.fx-zoom .pc { animation: fxZoom 0.7s cubic-bezier(0.2, 1.8, 0.4, 1) calc(var(--i) * 60ms) both; }
+@keyframes fxZoom { from { transform: scale(4); opacity: 0; filter: blur(8px); } to { transform: scale(1); opacity: 1; filter: none; } }
+.fx-wave .pc { animation: fxWave 1.4s ease-in-out calc(var(--i) * -120ms) infinite; }
+@keyframes fxWave { 0%, 100% { transform: translateY(12%); } 50% { transform: translateY(-12%); } }
+.fx-shake .pc { animation: fxShake 0.5s ease-in-out calc(var(--i) * 40ms) infinite; }
+@keyframes fxShake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg) translateX(-3%); } 75% { transform: rotate(10deg) translateX(3%); } }
+.fx-jelly .pc { animation: fxJelly 1.2s ease-in-out calc(var(--i) * 90ms) infinite; }
+@keyframes fxJelly { 0%, 100% { transform: scale(1, 1); } 25% { transform: scale(1.25, 0.8); } 50% { transform: scale(0.85, 1.2); } 75% { transform: scale(1.08, 0.94); } }
+.fx-typing .pc { animation: fxType 0.05s steps(1) calc(var(--i) * 130ms) both; }
+@keyframes fxType { from { opacity: 0; } to { opacity: 1; } }
+.fx-rainbow .pc { animation: fxRainbow 2s linear calc(var(--i) * -150ms) infinite; }
+@keyframes fxRainbow { 0% { color: #FF5C7A; } 16% { color: #FF9F43; } 33% { color: #F7C531; } 50% { color: #3EC28F; } 66% { color: #3FA7F0; } 83% { color: #A66CF0; } 100% { color: #FF5C7A; } }
+.fx-rainbow { text-shadow: 0 4px 0 rgba(255, 255, 255, 0.6), 0 6px 30px rgba(0, 0, 0, 0.15); }
+.fx-heart .pc { animation: fxHeart 1s ease-in-out infinite; }
+@keyframes fxHeart { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .pc { animation: none !important; } }
+.pfx { display: inline; }
