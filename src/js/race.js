@@ -27,6 +27,7 @@
   let gate = null;
   let ranking = [];
   let running = false;
+  let countingDown = false;
   let started = false;
   let winnerShown = false;
   let camY = 0;
@@ -448,6 +449,7 @@
   function loop() {
     raf = null;
     if ($('#racePanel').hidden) return;
+    syncBgm();
     if (running) {
       const speed = cfg().speed || 1;
       for (let i = 0; i < speed; i++) step();
@@ -494,6 +496,9 @@
     $('#raceWinN').hidden = c.winRank !== 'n';
     $('#raceSpeed').textContent = `${c.speed || 1}x`;
     $('#raceSound').classList.toggle('off', !c.sound);
+    $('#raceBgm').classList.toggle('off', c.bgm === false);
+    $('#raceBgm').setAttribute('aria-pressed', String(c.bgm !== false));
+    $('#raceBgm').title = c.bgm === false ? '배경음악 켜기' : '배경음악 끄기';
     $('#raceSound').setAttribute('aria-pressed', String(!!c.sound));
     if (document.activeElement !== $('#raceTitle')) $('#raceTitle').value = c.title || '';
     const done = started && marbles.length && ranking.length === marbles.length;
@@ -546,7 +551,10 @@
       showTab('rank');
       renderRanking();
       $('#raceStart').disabled = true;
+      countingDown = true;
+      kick();
       await countdown();
+      countingDown = false;
       $('#raceStart').disabled = false;
       M.Composite.remove(engine.world, gate);
       // 출발할 때 살짝씩 다른 힘을 줘서 매번 결과가 달라지게
@@ -557,6 +565,17 @@
     running = true;
     renderSetup();
     kick();
+  }
+
+  // BGM: 레이스가 달리는 동안(카운트다운 포함)만 재생, 결승에 가까울수록 빨라짐
+  function syncBgm() {
+    const want = cfg().bgm !== false && (running || countingDown) && !$('#racePanel').hidden;
+    if (want && !Sound.bgm.playing) Sound.bgm.start();
+    if (!want && Sound.bgm.playing) Sound.bgm.stop();
+    if (want && marbles.length) {
+      const lead = Math.max(...marbles.filter((m) => !m.finished).map((m) => m.body.position.y), 0);
+      Sound.bgm.setIntensity(lead / FINISH_Y);
+    }
   }
 
   function init() {
@@ -570,6 +589,14 @@
     $('#raceReset').addEventListener('click', () => { reset(); showTab('setup'); toast('구슬을 다시 섞었어요'); });
     $('#raceSpeed').addEventListener('click', () => { c.speed = (c.speed || 1) % 3 + 1; Store.save(); renderSetup(); });
     $('#raceSound').addEventListener('click', () => { c.sound = !c.sound; Store.save(); renderSetup(); });
+    $('#raceBgm').addEventListener('click', () => {
+      Sound.unlock();
+      c.bgm = c.bgm === false;
+      Store.save();
+      renderSetup();
+      syncBgm();
+      toast(c.bgm ? '🎵 배경음악을 켰어요' : '배경음악을 껐어요');
+    });
     $('#raceTitle').addEventListener('input', (e) => { c.title = e.target.value; Store.save(); });
     $('#raceTabs').addEventListener('click', (e) => {
       const b = e.target.closest('[data-rtab]');
@@ -609,7 +636,7 @@
           kick();
         });
       },
-      close: () => { running = false; },
+      close: () => { running = false; countingDown = false; Sound.bgm.stop(); },
     });
   }
 

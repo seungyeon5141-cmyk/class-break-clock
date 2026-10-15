@@ -30,6 +30,7 @@
       voice: true,
       bringToFront: true,
       chimeStyle: 'xylophone',
+      voiceType: 'clear',
       volume: 80,
     },
     general: {
@@ -54,7 +55,7 @@
       sound: true,
       presets: ['조용히 합시다 🤫', '자리에 앉아요', '선생님을 봐 주세요 👀', '정리 정돈해요', '손 씻고 오세요 🧼', '집중! 🔥', '1분 남았어요 ⏰'],
     },
-    race: { source: 'students', customItems: [], winRank: 'first', winN: 2, title: '', speed: 1, sound: true },
+    race: { source: 'students', customItems: [], winRank: 'first', winN: 2, title: '', speed: 1, sound: true, bgm: true },
     roulette: { items: ['칭찬 스티커', '발표하기', '청소 당번', '선생님 도우미', '자유 시간', '한 번 더!'], removeWinner: false },
   };
 

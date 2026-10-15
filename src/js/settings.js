@@ -311,6 +311,8 @@
     $$('[data-sound-setting]').forEach((el) => { el.checked = !!snd[el.dataset.soundSetting]; });
     const style = document.querySelector(`input[name="chimeStyle"][value="${snd.chimeStyle}"]`);
     if (style) style.checked = true;
+    const vt = document.querySelector(`input[name="voiceType"][value="${snd.voiceType === 'system' ? 'system' : 'clear'}"]`);
+    if (vt) vt.checked = true;
     $('#volume').value = snd.volume;
     $('#volumeVal').textContent = `${snd.volume}%`;
     renderBellToggles();
@@ -327,6 +329,16 @@
       renderBellToggles();
       Clock.refresh();
     }));
+    $$('input[name="voiceType"]').forEach((r) => r.addEventListener('change', () => {
+      Store.data.sound.voiceType = r.value;
+      Store.save();
+      $('#voicePreview').click();
+    }));
+    $('#voicePreview').addEventListener('click', () => {
+      Sound.unlock();
+      const text = '수업 시간 1분 전입니다. 자리에 앉아 교과서를 준비해 주세요.';
+      if (Store.data.sound.voiceType === 'system') Sound.speak(text); else Sound.playVoice('warning', text);
+    });
     $$('input[name="chimeStyle"]').forEach((r) => r.addEventListener('change', () => {
       Store.data.sound.chimeStyle = r.value;
       Store.save();

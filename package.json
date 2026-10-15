@@ -1,7 +1,7 @@
 {
   "name": "class-break-clock",
   "productName": "쉬는시간 알리미",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "description": "교실 바탕화면용 쉬는시간 알리미 시계 · 타이머 · 학생 뽑기 · 디데이 · 돌림판",
   "main": "main.js",
   "author": "seungyeon5141",

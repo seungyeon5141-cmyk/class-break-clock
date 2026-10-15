@@ -456,7 +456,8 @@
           <button class="btn btn-ghost" id="raceReset">🔀 다시 섞기</button>
           <button class="btn btn-primary btn-lg" id="raceStart">▶ 시작하기</button>
           <button class="round-btn" id="raceSpeed" title="속도">1x</button>
-          <button class="round-btn" id="raceSound" title="소리 켜기/끄기" aria-label="소리 켜기/끄기">🔊</button>
+          <button class="round-btn" id="raceSound" title="효과음 켜기/끄기" aria-label="효과음 켜기/끄기">🔊</button>
+          <button class="bgm-btn" id="raceBgm" aria-label="배경음악 켜기/끄기">🎵 <span class="bgm-on">BGM 켜짐</span><span class="bgm-off">BGM 꺼짐</span></button>
         </div>
       </div>
       <aside class="race-side">
@@ -587,6 +588,12 @@
             <label class="switch-row"><span>🎵 쉬는 시간 시작 종소리</span><input type="checkbox" class="switch" data-sound-setting="breakStart" /></label>
             <label class="switch-row"><span>⏰ 수업 1분 전 알림음 + 빨간 깜빡임</span><input type="checkbox" class="switch" data-sound-setting="warning" /></label>
             <label class="switch-row"><span>🗣️ 1분 전 음성 안내 “수업 시간 1분 전입니다”</span><input type="checkbox" class="switch" data-sound-setting="voice" /></label>
+            <div class="voice-type-row">
+              <span>음성 종류</span>
+              <label class="radio-pill"><input type="radio" name="voiceType" value="clear" /> <span>또렷한 여성 음성 (추천)</span></label>
+              <label class="radio-pill"><input type="radio" name="voiceType" value="system" /> <span>컴퓨터 기본 음성</span></label>
+              <button class="btn btn-soft" id="voicePreview">▶ 들어보기</button>
+            </div>
             <label class="switch-row"><span>🪟 알림 때 창을 맨 앞으로 띄우기</span><input type="checkbox" class="switch" data-sound-setting="bringToFront" /></label>
           </div>
           <h3>종소리 종류</h3>
@@ -665,6 +672,7 @@
 
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/voice-data.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/clock.js"></script>
   <script src="js/dday.js"></script>

@@ -177,6 +177,137 @@
     }
   }
 
+  // ---------- 미리 녹음한 안내 음성 ----------
+  const voiceBuffers = {};
+  async function voiceBuffer(name) {
+    if (voiceBuffers[name]) return voiceBuffers[name];
+    const src = window.VOICE_DATA && window.VOICE_DATA[name];
+    if (!src) return null;
+    const c = ensure();
+    const bin = atob(src.split(',')[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    voiceBuffers[name] = await c.decodeAudioData(bytes.buffer);
+    return voiceBuffers[name];
+  }
+
+  // 큰 소리 통로로 재생 (컴퓨터 음성보다 크고 또렷하게)
+  async function playVoice(name, fallbackText) {
+    try {
+      const buf = await voiceBuffer(name);
+      if (!buf) throw new Error('no voice');
+      const c = ensure();
+      const srcNode = c.createBufferSource();
+      srcNode.buffer = buf;
+      const g = c.createGain();
+      g.gain.value = 0.9;
+      srcNode.connect(g).connect(loud);
+      srcNode.start();
+    } catch (e) {
+      if (fallbackText) speak(fallbackText);
+    }
+  }
+
+  // ---------- 뽑기 레이스 BGM: 신나는 8비트 게임 음악 (직접 합성, 저작권 걱정 없음) ----------
+  const BGM = (() => {
+    let bus = null;
+    let timer = null;
+    let step = 0;
+    let nextTime = 0;
+    let tempo = 150;
+    const n = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    // 4마디 반복: Am - F - C - G (16분음표 16칸씩)
+    const CHORDS = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]];
+    const HOOK = [76, null, 76, 79, null, 76, 74, null, 72, null, 74, 76, null, 72, 69, null];
+    const HOOK2 = [72, null, 72, 76, null, 72, 71, null, 67, null, 71, 74, null, 71, 67, null];
+
+    function noise(t, dur, gain, hp) {
+      const c = ensure();
+      const len = Math.floor(c.sampleRate * dur);
+      const b = c.createBuffer(1, len, c.sampleRate);
+      const d = b.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource();
+      src.buffer = b;
+      const f = c.createBiquadFilter();
+      f.type = 'highpass';
+      f.frequency.value = hp;
+      const g = c.createGain();
+      g.gain.setValueAtTime(gain, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f).connect(g).connect(bus);
+      src.start(t);
+    }
+    function blip(freq, t, dur, type, gain, toFreq) {
+      const c = ensure();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (toFreq) o.frequency.exponentialRampToValueAtTime(toFreq, t + dur);
+      g.gain.setValueAtTime(gain, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(bus);
+      o.start(t);
+      o.stop(t + dur + 0.02);
+    }
+    function scheduleStep(i, t) {
+      const s16 = 60 / tempo / 4;
+      const bar = Math.floor(i / 16) % 4;
+      const k = i % 16;
+      const chord = CHORDS[bar];
+      // 드럼: 킥(1·3박 + 당김), 스네어(2·4박), 하이햇(8분)
+      if (k === 0 || k === 8 || k === 10) blip(150, t, 0.16, 'sine', 0.9, 45);
+      if (k === 4 || k === 12) noise(t, 0.12, 0.35, 1500);
+      if (k % 2 === 0) noise(t, 0.04, 0.12, 7000);
+      // 베이스: 8분음표로 통통
+      if (k % 2 === 0) blip(n(chord[0] - 12), t, s16 * 1.8, 'triangle', 0.5);
+      // 아르페지오: 16분음표로 빠르게
+      blip(n(chord[k % 3] + 12), t, s16 * 0.9, 'square', 0.06);
+      // 멜로디: 짝수 판은 HOOK, 홀수 판은 HOOK2
+      const mel = (Math.floor(i / 64) % 2 ? HOOK2 : HOOK)[k];
+      if (mel && (bar === 0 || bar === 2)) blip(n(mel), t, s16 * 1.7, 'square', 0.13);
+      if (mel && (bar === 1 || bar === 3)) blip(n(mel - 2), t, s16 * 1.7, 'square', 0.11);
+    }
+    function tick() {
+      const c = ensure();
+      while (nextTime < c.currentTime + 0.12) {
+        scheduleStep(step, nextTime);
+        nextTime += 60 / tempo / 4;
+        step += 1;
+      }
+    }
+    return {
+      start() {
+        const c = ensure();
+        if (timer) return;
+        if (!bus) {
+          bus = c.createGain();
+          bus.connect(master);
+        }
+        bus.gain.cancelScheduledValues(c.currentTime);
+        bus.gain.setValueAtTime(0.55, c.currentTime);
+        step = 0;
+        nextTime = c.currentTime + 0.05;
+        timer = setInterval(tick, 25);
+        tick();
+      },
+      stop() {
+        if (!timer) return;
+        clearInterval(timer);
+        timer = null;
+        if (bus) {
+          const c = ensure();
+          bus.gain.setValueAtTime(bus.gain.value, c.currentTime);
+          bus.gain.linearRampToValueAtTime(0.0001, c.currentTime + 0.25);
+        }
+      },
+      // 결승이 가까워질수록 빨라지게 (0~1)
+      setIntensity(x) { tempo = 145 + Math.round(Math.max(0, Math.min(1, x)) * 35); },
+      get playing() { return !!timer; },
+    };
+  })();
+
   const Sound = {
     unlock: ensure,
     classStart() { return chime('classStart'); },
@@ -184,7 +315,12 @@
     warning(withVoice) {
       const len = play(WARNING, 'musicbox', { gain: 0.55 });
       play(WARNING, 'musicbox', { gain: 0.45, delay: len + 0.2 });
-      if (withVoice) setTimeout(() => speak('수업 시간 1분 전입니다. 자리에 앉아 교과서를 준비해 주세요.'), (len * 2 + 0.4) * 1000);
+      const text = '수업 시간 1분 전입니다. 자리에 앉아 교과서를 준비해 주세요.';
+      if (withVoice) {
+        setTimeout(() => {
+          if (Store.data.sound.voiceType === 'system') speak(text); else playVoice('warning', text);
+        }, (len * 2 + 0.4) * 1000);
+      }
     },
     // 레이스·카운트다운용 작은 소리
     tick() { play([[96, 0.1]], 'soft', { gain: 0.35 }); },
@@ -207,6 +343,8 @@
       active.clear();
     },
     alarmStyles: ['bell', 'digital', 'siren', 'fanfare'],
+    playVoice,
+    bgm: BGM,
     click() { play([[90 + Math.floor(Math.random() * 4), 0.05]], 'xylophone', { gain: 0.25, lenScale: 0.12 }); },
     fanfare() { play([[72, 0.12], [76, 0.12], [79, 0.12], [[84, 88, 91], 0.8]], 'xylophone', { gain: 0.5 }); },
     speak,

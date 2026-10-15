@@ -1108,3 +1108,12 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .end-style-row { display: flex; gap: 6px; align-items: center; }
 .end-style-row select { flex: 1; min-width: 0; }
 .end-style-row .btn { padding: 8px 14px; }
+
+.bgm-btn { height: 48px; padding: 0 16px; border-radius: 999px; background: var(--grad); color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); }
+.bgm-btn .bgm-off { display: none; }
+.bgm-btn.off { background: #fff; color: var(--ink-faint); border: 2px solid var(--lav-200); box-shadow: none; }
+.bgm-btn.off .bgm-on { display: none; }
+.bgm-btn.off .bgm-off { display: inline; }
+.voice-type-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--r-sm); background: var(--lav-50); border: 2px solid var(--lav-100); font-size: 15px; font-weight: 600; }
+.voice-type-row .radio-pill { margin-top: 0; }
+.voice-type-row .btn { padding: 7px 14px; }
