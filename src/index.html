@@ -186,7 +186,7 @@
       <aside class="picker-side">
         <div class="side-card grow">
           <h3>학생 명단 <small id="pickerCountInfo"></small></h3>
-          <p class="mini-help">학생을 눌러 결석·제외할 수 있어요</p>
+          <p class="mini-help">오늘 결석한 학생은 눌러서 빼 주세요</p>
           <div class="student-chips" id="studentChips"></div>
         </div>
         <div class="side-card">
@@ -194,8 +194,33 @@
           <div class="history" id="pickHistory"></div>
         </div>
       </aside>
+      <button class="gear-btn" id="pickSettings" title="뽑기 설정" aria-label="뽑기 설정">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
     </div>
   </section>
+
+  <!-- 뽑기 설정: 제외 번호 지정 (학생 화면에는 드러나지 않음) -->
+  <div class="modal" id="secretModal" hidden>
+    <div class="modal-card secret-card">
+      <div class="modal-gear" aria-hidden="true">⚙️</div>
+      <button class="modal-x" data-modal-close aria-label="닫기">✕</button>
+      <h3>설정</h3>
+      <div class="secret-box">
+        <h4>제외 번호 지정</h4>
+        <ul class="secret-help">
+          <li>학급에 <b>제외 번호(예: 전학생 번호)</b>가 있으면 그 번호를 빼고 뽑을 수 있어요.</li>
+          <li>아래 번호 중 제외할 번호를 눌러 주세요.</li>
+          <li>제외한 번호는 학생 명단·인원 수·뽑기 화면 어디에도 나타나지 않아요.</li>
+        </ul>
+        <div class="secret-grid" id="secretGrid"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-modal-close>취소</button>
+        <button class="btn btn-primary" id="secretSave">저장</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== 디데이 ===== -->
   <section class="panel panel-narrow" id="ddayPanel" hidden aria-label="디데이">

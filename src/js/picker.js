@@ -4,7 +4,8 @@
   let rolling = false;
 
   const st = () => Store.data.picker;
-  const students = () => Store.data.students;
+  // 제외 번호로 지정한 학생은 화면 어디에도 나오지 않게 처음부터 빼 둔다
+  const students = () => Store.data.students.filter((p) => !st().secretIds.includes(p.id));
   const label = (p) => `${p.no ? `${p.no}번 ` : ''}${p.name}`;
 
   function matchesGender(p) {
@@ -114,8 +115,49 @@
     renderSide();
   }
 
+  // ---------- 제외 번호 지정 (설정 톱니바퀴) ----------
+  let secretDraft = [];
+
+  function byNumber(a, b) {
+    const na = parseInt(a.no, 10);
+    const nb = parseInt(b.no, 10);
+    if (Number.isNaN(na) || Number.isNaN(nb)) return String(a.no).localeCompare(String(b.no), 'ko');
+    return na - nb;
+  }
+
+  function renderSecretGrid() {
+    const list = Store.data.students.slice().sort(byNumber);
+    $('#secretGrid').innerHTML = list.length
+      ? list.map((p, i) => `<button class="secret-no${secretDraft.includes(p.id) ? ' on' : ''}" data-id="${esc(p.id)}" aria-pressed="${secretDraft.includes(p.id)}">${esc(p.no || i + 1)}</button>`).join('')
+      : '<p class="mini-help">학생 명단이 비어 있어요. 설정 › 학생 명단에서 먼저 불러와 주세요.</p>';
+  }
+
+  function openSecret() {
+    secretDraft = st().secretIds.slice();
+    renderSecretGrid();
+    $('#secretModal').hidden = false;
+  }
+
+  function saveSecret() {
+    st().secretIds = secretDraft.filter((id) => Store.data.students.some((p) => p.id === id));
+    Store.save();
+    $('#secretModal').hidden = true;
+    renderSide();
+    toast('설정을 저장했어요');
+  }
+
   function init() {
     $('#pickGo').addEventListener('click', go);
+    $('#pickSettings').addEventListener('click', openSecret);
+    $('#secretSave').addEventListener('click', saveSecret);
+    $('#secretGrid').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-id]');
+      if (!b) return;
+      const id = b.dataset.id;
+      secretDraft = secretDraft.includes(id) ? secretDraft.filter((x) => x !== id) : [...secretDraft, id];
+      b.classList.toggle('on', secretDraft.includes(id));
+      b.setAttribute('aria-pressed', String(secretDraft.includes(id)));
+    });
     $('#pickCountMinus').addEventListener('click', () => { st().count = Math.max(1, st().count - 1); Store.save(); renderSide(); });
     $('#pickCountPlus').addEventListener('click', () => { st().count = Math.min(Math.max(1, students().length), st().count + 1, 30); Store.save(); renderSide(); });
     $('#pickNoRepeat').addEventListener('change', (e) => { st().noRepeat = e.target.checked; Store.save(); renderSide(); });

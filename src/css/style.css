@@ -617,6 +617,36 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .history span { padding: 3px 10px; border-radius: 999px; background: var(--pink-100); }
 .panel.expanded .pick-card .pc-name { font-size: clamp(48px, 7vw, 96px); }
 
+/* 뽑기 설정 톱니바퀴: 오른쪽 아래에 작게 */
+.picker-layout { position: relative; }
+.gear-btn {
+  position: absolute; right: 18px; bottom: 16px; z-index: 2;
+  width: 48px; height: 48px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #fff; box-shadow: 0 4px 14px rgba(120, 86, 200, 0.22);
+}
+.gear-btn svg { width: 24px; height: 24px; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gear-btn:hover svg { stroke: var(--lav-500); }
+.picker-side { padding-bottom: 60px; }
+.secret-card { width: min(560px, calc(100vw - 32px)); padding-top: 54px; }
+.modal-gear {
+  position: absolute; top: 0; left: 50%; transform: translate(-50%, -40%);
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--grad); border: 4px solid #fff; font-size: 28px; box-shadow: var(--shadow);
+}
+.secret-card { overflow: visible; }
+.secret-box { background: var(--lav-50); border: 2px solid var(--lav-100); border-radius: var(--r-md); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.secret-box h4 { margin: 0; font-size: 17px; }
+.secret-help { margin: 0; padding-left: 1.1em; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.secret-help b { color: var(--pink-500); }
+.secret-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; max-height: 280px; overflow: auto; padding: 2px; }
+.secret-no {
+  height: 40px; border-radius: 10px; background: #fff; border: 2px solid var(--lav-100);
+  font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums;
+}
+.secret-no:hover { border-color: var(--lav-400); }
+.secret-no.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
 /* ===== 디데이 패널 ===== */
 .dday-list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 15px; font-weight: 700; }
 .dday-list-head b { color: var(--pink-500); }

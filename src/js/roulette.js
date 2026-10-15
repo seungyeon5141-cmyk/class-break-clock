@@ -156,7 +156,8 @@
     });
     $('#wheelRemove').addEventListener('change', (e) => { cfg().removeWinner = e.target.checked; Store.save(); });
     $('#wheelLoadStudents').addEventListener('click', () => {
-      const list = Store.data.students;
+      const secret = Store.data.picker.secretIds;
+      const list = Store.data.students.filter((p) => !secret.includes(p.id));
       if (!list.length) { toast('설정 › 학생 명단에서 먼저 CSV를 불러와 주세요'); return; }
       $('#wheelItems').value = list.map((p) => p.name).join('\n');
       save(); draw();

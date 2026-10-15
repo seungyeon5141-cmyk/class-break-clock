@@ -240,6 +240,7 @@
     const pk = Store.data.picker;
     pk.pickedIds = pk.pickedIds.filter((id) => ids.has(id));
     pk.excludedIds = pk.excludedIds.filter((id) => ids.has(id));
+    pk.secretIds = pk.secretIds.filter((id) => ids.has(id));
     Store.save();
     renderStudents();
     Picker.refresh();
@@ -256,6 +257,7 @@
       Store.data.students = list;
       Store.data.picker.pickedIds = [];
       Store.data.picker.excludedIds = [];
+      Store.data.picker.secretIds = [];
       Store.data.picker.history = [];
       studentsChanged();
       toast(`학생 ${list.length}명을 불러왔어요 👩‍🎓`);
