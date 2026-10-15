@@ -35,14 +35,24 @@ function supportsLoginItem() {
   return process.platform === 'win32' || process.platform === 'darwin';
 }
 
+// Windows는 등록할 때와 확인할 때 실행 경로·인수가 똑같아야 같은 항목으로 찾음.
+// (예전에는 확인할 때 인수를 빼서 켜져 있어도 '꺼짐'으로 읽혔음)
+function loginItemOptions() {
+  const args = app.isPackaged ? ['--autostart'] : [app.getAppPath(), '--autostart'];
+  return { path: process.execPath, args };
+}
+
 function getAutoLaunch() {
   if (!supportsLoginItem()) return false;
-  return app.getLoginItemSettings().openAtLogin;
+  const st = app.getLoginItemSettings(loginItemOptions());
+  return !!(st.openAtLogin || st.executableWillLaunchAtLogin);
 }
 
 function setAutoLaunch(enabled) {
   if (!supportsLoginItem()) return false;
-  app.setLoginItemSettings({ openAtLogin: !!enabled, path: process.execPath, args: ['--autostart'] });
+  app.setLoginItemSettings({ openAtLogin: !!enabled, ...loginItemOptions() });
+  // 예전 버전이 인수 없이 남긴 항목이 있으면 함께 정리
+  if (!enabled) app.setLoginItemSettings({ openAtLogin: false, path: process.execPath });
   writeConfig({ autoLaunch: !!enabled });
   refreshTrayMenu();
   return getAutoLaunch();

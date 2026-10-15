@@ -539,9 +539,11 @@
     $('#hour12').addEventListener('change', (e) => { Store.data.general.hour12 = e.target.checked; Store.save(); Clock.refresh(); });
     if (d) {
       $('#autoStart').addEventListener('change', async (e) => {
-        const on = await d.setAutoStart(e.target.checked);
+        const want = e.target.checked;
+        const on = await d.setAutoStart(want);
         e.target.checked = on;
-        toast(on ? '컴퓨터를 켜면 자동으로 실행돼요 🖥️' : '자동 실행을 껐어요');
+        if (want && !on) toast('자동 실행을 켜지 못했어요. 백신·보안 프로그램이 시작 프로그램 등록을 막고 있는지 확인해 주세요', 6000);
+        else toast(on ? '컴퓨터를 켜면 자동으로 실행돼요 🖥️' : '자동 실행을 껐어요');
       });
       $('#alwaysOnTop').addEventListener('change', (e) => d.setAlwaysOnTop(e.target.checked));
       $('#closeToTray').addEventListener('change', (e) => d.setCloseToTray(e.target.checked));
