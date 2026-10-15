@@ -1091,3 +1091,16 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .btn-continue.restart { color: #fff; background: var(--grad); border-color: transparent; }
 .all-done { width: 100%; text-align: center; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.85); font-weight: 700; font-size: 16px; color: var(--ink); }
 .all-done b { color: var(--lav-500); }
+
+/* 다시 뽑기: 이어서 뽑기(테두리)와 구분되는 민트색 채운 버튼 */
+.btn-restart { background: linear-gradient(135deg, #4FD1B0 0%, #3FB8C9 100%); color: #fff; box-shadow: 0 8px 20px rgba(63, 184, 201, 0.35); }
+.btn-restart:hover { filter: brightness(1.05); }
+.btn-restart.pulse { animation: restartPulse 1.2s ease-in-out infinite; }
+@keyframes restartPulse { 0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(63, 184, 201, 0.35); } 50% { transform: scale(1.05); box-shadow: 0 10px 28px rgba(63, 184, 201, 0.6); } }
+@media (prefers-reduced-motion: reduce) { .btn-restart.pulse { animation: none; } }
+/* 뽑기 아래 버튼들이 한 줄에 들어가도록 */
+.picker-controls { gap: 10px; flex-wrap: nowrap; }
+.picker-controls .btn-lg { padding: 12px 20px; font-size: 19px; }
+.picker-controls .pick-options .check { font-size: 14px; white-space: nowrap; }
+@media (max-width: 1100px) { .picker-controls { flex-wrap: wrap; } }
+.stepper { white-space: nowrap; flex-shrink: 0; }

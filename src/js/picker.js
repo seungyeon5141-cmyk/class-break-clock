@@ -120,6 +120,7 @@
   function resetRound() {
     round = [];
     $('#pickContinue').hidden = true;
+    $('#pickRestart').hidden = true;
   }
 
   // cont = true 이면 '이어서 뽑기': 이번 판에서 이미 뽑힌 후보를 빼고 계속 뽑음
@@ -151,6 +152,7 @@
     rolling = true;
     $('#pickGo').disabled = true;
     $('#pickContinue').disabled = true;
+    $('#pickRestart').disabled = true;
     const stage = $('#pickerStage');
     stage.classList.toggle('mode-group', m === 'group');
     // 앞에서 뽑힌 후보는 위에 작게 남겨 둠
@@ -197,13 +199,15 @@
     rolling = false;
     $('#pickGo').disabled = false;
     $('#pickContinue').disabled = false;
-    $('#pickContinue').hidden = false;
+    $('#pickRestart').disabled = false;
+    $('#pickRestart').hidden = false;
     // 이번에 마지막 후보까지 뽑았으면 '처음부터 다시' 안내
     const doneIds = new Set(round.map((w) => w.id));
     const allDone = !pool().some((p) => !doneIds.has(p.id));
-    $('#pickContinue').textContent = allDone ? '🔄 처음부터 다시 뽑기' : '➕ 이어서 뽑기';
-    $('#pickContinue').classList.toggle('restart', allDone);
-    if (allDone) stage.insertAdjacentHTML('beforeend', '<div class="all-done">🎉 모두 한 번씩 뽑혔어요! <b>처음부터 다시 뽑기</b>를 누르면 새로 시작해요</div>');
+    // 모두 뽑혔으면 이어서 뽑기는 숨기고 다시 뽑기만 강조
+    $('#pickContinue').hidden = allDone;
+    $('#pickRestart').classList.toggle('pulse', allDone);
+    if (allDone) stage.insertAdjacentHTML('beforeend', '<div class="all-done">🎉 모두 한 번씩 뽑혔어요! <b>🔄 다시 뽑기</b>를 누르면 새로 시작해요</div>');
     renderSide();
   }
 
@@ -250,6 +254,13 @@
   function init() {
     $('#pickGo').addEventListener('click', () => go(false));
     $('#pickContinue').addEventListener('click', () => go(true));
+    // 다시 뽑기: 이번 판과 '뽑힌 후보 제외' 목록을 모두 비우고 새로 뽑음 (뽑힌 기록은 남김)
+    $('#pickRestart').addEventListener('click', () => {
+      if (rolling) return;
+      restartAll();
+      toast('🔄 처음부터 다시 뽑아요');
+      go(false);
+    });
     $('#pickSettings').addEventListener('click', openSecret);
     $('#secretSave').addEventListener('click', saveSecret);
     $('#secretGrid').addEventListener('click', (e) => {
@@ -319,7 +330,7 @@
       if ($('#pickerPanel').hidden || e.code !== 'Space') return;
       if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       e.preventDefault();
-      go(!$('#pickContinue').hidden);
+      go(!$('#pickContinue').hidden && !$('#pickRestart').classList.contains('pulse'));
     });
     UI.onPanel('pickerPanel', { open: renderSide });
   }
