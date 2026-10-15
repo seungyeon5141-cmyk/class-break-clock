@@ -72,6 +72,8 @@
     $('#pickerCountInfo').textContent = `${list.length}명`;
     $('#studentChips').innerHTML = list.map((p) => {
       const cls = ['s-chip'];
+      if (p.gender === 'M') cls.push('g-m');
+      if (p.gender === 'F') cls.push('g-f');
       if (excludedIds.includes(p.id)) cls.push('excluded');
       else if (pickedIds.includes(p.id)) cls.push('picked');
       if (!matchesGender(p)) cls.push('hidden-gender');
@@ -97,8 +99,11 @@
     $('#pickEffect').checked = st().effect !== false;
   }
 
+  // 성별 색: 남학생 연한 하늘, 여학생 연한 빨강
+  const genderCls = (p) => (p && p.gender === 'M' ? ' g-m' : p && p.gender === 'F' ? ' g-f' : '');
+
   function cardHtml(p, cls) {
-    return `<div class="pick-card ${cls}"><div class="pc-no">${p.no ? `${esc(p.no)}번` : '&nbsp;'}</div><div class="pc-name">${esc(p.name)}</div></div>`;
+    return `<div class="pick-card ${cls}${genderCls(p)}"><div class="pc-no">${p.no ? `${esc(p.no)}번` : '&nbsp;'}</div><div class="pc-name">${esc(p.name)}</div></div>`;
   }
 
   const historyLabel = (p) => (mode() === 'student' ? label(p) : p.name);
@@ -156,7 +161,7 @@
     stage.classList.toggle('mode-group', m === 'group');
     // 앞에서 뽑힌 후보는 위에 작게 남겨 둠
     const prevHtml = round.length
-      ? `<div class="round-prev"><span class="rp-label">앞에서 뽑힘</span>${round.map((w, i) => `<span class="rp-chip"><b>${i + 1}</b>${esc(historyLabel(w))}</span>`).join('')}</div>`
+      ? `<div class="round-prev"><span class="rp-label">앞에서 뽑힘</span>${round.map((w, i) => `<span class="rp-chip${genderCls(w)}"><b>${i + 1}</b>${esc(historyLabel(w))}</span>`).join('')}</div>`
       : '';
 
     if (st().effect !== false) {
@@ -172,6 +177,8 @@
           const p = all[randInt(all.length)];
           c.querySelector('.pc-no').innerHTML = p.no ? `${esc(p.no)}번` : '&nbsp;';
           c.querySelector('.pc-name').textContent = p.name;
+          c.classList.toggle('g-m', p.gender === 'M');
+          c.classList.toggle('g-f', p.gender === 'F');
           if (i === 0) Sound.click();
         });
         await new Promise((r) => setTimeout(r, delay));

@@ -1132,3 +1132,14 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .clock-message { display: flex; align-items: center; justify-content: center; gap: 0.45em; }
 .cm-icon { width: 1.5em; height: 1.5em; border-radius: 0.4em; flex: none; }
 @media (max-height: 640px) { .dock-ico img { width: 40px; height: 40px; } }
+
+/* ===== 뽑기 성별 색 ===== */
+.pick-card.g-m { background: #E3F3FF; border-color: #9CD2F7; }
+.pick-card.g-m .pc-no { color: #2F8FD0; }
+.pick-card.g-f { background: #FFE6EA; border-color: #FFAAB8; }
+.pick-card.g-f .pc-no { color: #E2546E; }
+.s-chip.g-m { background: #EEF8FF; border-color: #C5E5FB; }
+.s-chip.g-f { background: #FFF0F2; border-color: #FFCDD6; }
+.s-chip.g-m.picked, .s-chip.g-f.picked { opacity: 0.55; }
+.rp-chip.g-m { background: #E3F3FF; }
+.rp-chip.g-f { background: #FFE6EA; }

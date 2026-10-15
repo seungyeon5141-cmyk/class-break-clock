@@ -36,6 +36,7 @@
 - **설정 › 학생 명단**에서 CSV 파일(`번호,이름[,성별]`)을 불러오면 바로 사용
 - 엑셀에서 저장한 CSV(EUC-KR)와 UTF-8 모두 자동 인식
 - 여러 명 동시 뽑기, 뽑힌 학생 제외, 결석 학생 제외(이름 클릭), 남/여만 뽑기, 뽑힌 기록
+- 성별 색 구분: 뽑힌 카드·명단에서 남학생은 연한 하늘색, 여학생은 연한 빨간색 (CSV 세 번째 칸에 성별을 넣었을 때)
 - 뽑기 화면 오른쪽 아래 ⚙️ **설정 › 제외 번호 지정**: 전학생 번호 등을 빼고 뽑기. 제외한 번호는 학생 명단·인원 수·뽑기 애니메이션·돌림판 어디에도 나타나지 않아 학생들이 알 수 없어요
 
 ### 🏁 뽑기 레이스
@@ -83,13 +84,13 @@
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.13.1.exe`가 들어 있어요
-3. `v1.13.1` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.13.2.exe`가 들어 있어요
+3. `v1.13.2` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.13.1.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.13.2.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.
