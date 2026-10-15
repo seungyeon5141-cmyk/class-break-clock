@@ -45,7 +45,7 @@
       histories: { student: [], group: [], custom: [] },
       groupCount: 5, groupPicked: [], customItems: [], customPicked: [],
     },
-    timer: { title: '쉬는 시간', seconds: 300, tick: true, endSound: true },
+    timer: { title: '쉬는 시간', seconds: 300, tick: true, endSound: true, endStyle: 'bell' },
     popup: {
       text: '조용히 합시다',
       theme: 'alert',

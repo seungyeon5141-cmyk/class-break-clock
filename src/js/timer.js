@@ -82,7 +82,7 @@
       const r = remainSec();
       if (r !== s.lastTickSec) {
         s.lastTickSec = r;
-        if (cfg().tick && r > 0 && r <= 5) (r === 1 ? Sound.tickLast : Sound.tick)();
+        if (cfg().tick && r > 0 && r <= 5) Sound.timerTick(r === 1);
       }
       if (s.remainMs <= 0) finish();
     }
@@ -100,7 +100,7 @@
     s.running = false;
     s.done = true;
     s.remainMs = 0;
-    if (cfg().endSound) Sound.timerEnd();
+    if (cfg().endSound) Sound.timerEnd(cfg().endStyle || 'bell');
     if (window.desktop && Store.data.sound.bringToFront) window.desktop.bringToFront();
     const title = $('#timerTitle').value.trim();
     toast(`⏰ ${title ? `${title} ` : ''}타이머가 끝났어요!`, 5000);
@@ -108,6 +108,7 @@
 
   function startPause() {
     Sound.unlock();
+    Sound.stopAlarm();
     if (s.mode === 'timer') {
       readInputs();
       if (s.running) {
@@ -131,6 +132,7 @@
   }
 
   function reset() {
+    Sound.stopAlarm();
     if (s.mode === 'timer') {
       s.running = false;
       s.done = false;
@@ -230,6 +232,11 @@
     $('#timerTitle').addEventListener('input', () => { c.title = $('#timerTitle').value; Store.save(); });
     $('#timerTick').addEventListener('change', (e) => { c.tick = e.target.checked; Store.save(); });
     $('#timerEndSound').addEventListener('change', (e) => { c.endSound = e.target.checked; Store.save(); });
+    $('#timerEndStyle').value = c.endStyle || 'bell';
+    $('#timerEndStyle').addEventListener('change', (e) => { c.endStyle = e.target.value; Store.save(); Sound.timerEnd(c.endStyle); });
+    $('#timerEndPreview').addEventListener('click', () => { Sound.unlock(); Sound.timerEnd(c.endStyle || 'bell'); });
+    // 알람이 울리는 중에 타이머 숫자를 누르면 소리 멈춤
+    $('#timerFace').addEventListener('click', () => { if (s.done) Sound.stopAlarm(); });
 
     $('#timerRing').style.strokeDasharray = String(CIRC);
 

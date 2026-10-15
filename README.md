@@ -20,7 +20,8 @@
 
 ### ⏳ 타이머 / 스톱워치
 - 1·2·3·5·10·20·30·40·50분 빠른 설정, 숫자 직접 입력, ±1·5·10분 (실행 중에도 가능)
-- 종료 5초 전 경고음, 종료음, 타이머 제목, 크게 보기, 스페이스바로 시작/정지
+- 종료 5초 전 경고음, 타이머 제목, 크게 보기, 스페이스바로 시작/정지
+- **크고 강렬한 종료음 4가지**: ⏰ 따르릉 알람시계(기본) · 📟 삐삐삐삐 디지털 · 🚨 사이렌 · 🎺 빠바바밤 빵빠레 (▶ 미리 듣기, 울리는 중 숫자를 누르면 멈춤)
 - 스톱워치 기록(랩): 오른쪽 칸에 구간 시간과 누적 시간이 쌓여요
 
 ### 🎲 뽑기
@@ -79,13 +80,13 @@
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.10.1.exe`가 들어 있어요
-3. `v1.10.1` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.11.0.exe`가 들어 있어요
+3. `v1.11.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.10.1.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.11.0.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.

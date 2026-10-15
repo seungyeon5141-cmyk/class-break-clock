@@ -139,6 +139,15 @@
           <h3>소리</h3>
           <label class="check"><input type="checkbox" id="timerTick" checked /> <span>종료 5초 전 경고음</span></label>
           <label class="check"><input type="checkbox" id="timerEndSound" checked /> <span>종료음</span></label>
+          <div class="end-style-row">
+            <select class="field sm" id="timerEndStyle" aria-label="종료음 종류">
+              <option value="bell">⏰ 따르릉 알람시계</option>
+              <option value="digital">📟 삐삐삐삐 디지털</option>
+              <option value="siren">🚨 사이렌</option>
+              <option value="fanfare">🎺 빠바바밤 빵빠레</option>
+            </select>
+            <button class="btn btn-soft" id="timerEndPreview" title="미리 듣기">▶</button>
+          </div>
         </div>
         <div class="side-card">
           <h3>시간 설정</h3>

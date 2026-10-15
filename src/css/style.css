@@ -1104,3 +1104,7 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .picker-controls .pick-options .check { font-size: 14px; white-space: nowrap; }
 @media (max-width: 1100px) { .picker-controls { flex-wrap: wrap; } }
 .stepper { white-space: nowrap; flex-shrink: 0; }
+
+.end-style-row { display: flex; gap: 6px; align-items: center; }
+.end-style-row select { flex: 1; min-width: 0; }
+.end-style-row .btn { padding: 8px 14px; }
