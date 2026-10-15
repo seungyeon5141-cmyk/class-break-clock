@@ -26,7 +26,7 @@
       volume: 80,
     },
     general: {
-      message: '쉬는 시간 1분 전에는 자리에 앉아 교과서를 준비합니다.',
+      message: '수업 시간 1분 전에는 자리에 앉아 교과서를 준비합니다',
       hour12: false,
     },
     students: [],
@@ -57,7 +57,7 @@
   }
 
   // 예전 기본 문구를 그대로 쓰던 경우에만 새 기본 문구로 바꿈 (직접 고친 문구는 유지)
-  const OLD_DEFAULT_MESSAGES = ['쉬는 시간 1분 전에는 자리에 앉아주세요'];
+  const OLD_DEFAULT_MESSAGES = ['쉬는 시간 1분 전에는 자리에 앉아주세요', '쉬는 시간 1분 전에는 자리에 앉아 교과서를 준비합니다.'];
 
   function load() {
     try {

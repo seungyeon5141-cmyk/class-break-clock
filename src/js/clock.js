@@ -126,7 +126,7 @@
       digits.textContent = fmtRemain(st.until);
       $('#warningSub').hidden = false;
       $('#warningNow').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      $('#clockMessage').textContent = `쉬는 시간 1분 전입니다! 자리에 앉아 ${st.next.name} 교과서를 준비해요 📚`;
+      $('#clockMessage').textContent = `수업 시간 1분 전입니다! 자리에 앉아 ${st.next.name} 교과서를 준비해요 📚`;
     } else {
       digits.innerHTML = fmtClock(now);
       $('#warningSub').hidden = true;

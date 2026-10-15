@@ -34,6 +34,17 @@
 
   function remainSec() { return Math.ceil(s.remainMs / 1000); }
 
+  const swElapsed = () => s.swAcc + (s.swRunning ? performance.now() - s.swStart : 0);
+
+  // 스톱워치 시간 표시 (분:초.1/10초, 1시간 넘으면 시:분:초)
+  function fmtSw(ms) {
+    const tenth = Math.floor(ms / 100) % 10;
+    const sec = Math.floor(ms / 1000);
+    const h = Math.floor(sec / 3600);
+    const main = h ? `${h}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}` : `${pad(Math.floor(sec / 60))}:${pad(sec % 60)}`;
+    return `${main}.${tenth}`;
+  }
+
   function render() {
     const face = $('#timerFace');
     if (s.mode === 'timer') {
@@ -154,7 +165,11 @@
   }
 
   function renderLaps() {
-    $('#swLaps').innerHTML = s.laps.map((l, i) => `<li>${i + 1}번째 · ${l}</li>`).join('');
+    const n = s.laps.length;
+    $('#swLaps').innerHTML = s.laps.map((l, i) =>
+      `<li><b>${n - i}</b><span class="lap-split">${fmtSw(l.split)}</span><span class="lap-total">${fmtSw(l.total)}</span></li>`).join('');
+    $('#swLapCount').textContent = n ? `${n}개` : '';
+    $('#swLapEmpty').hidden = n > 0;
   }
 
   function setMode(mode) {
@@ -165,8 +180,8 @@
     $('#timerHint').hidden = !isTimer;
     $('#swDigits').hidden = isTimer;
     $('#swLap').hidden = isTimer;
-    $('#swLaps').hidden = isTimer;
-    $('#timerSide').style.visibility = isTimer ? 'visible' : 'hidden';
+    // 스톱워치에서는 오른쪽 칸에 기록만 보여줌
+    $$('#timerSide > .side-card').forEach((card) => { card.hidden = isTimer ? card.id === 'swLapCard' : card.id !== 'swLapCard'; });
     render();
     if (s.running || s.swRunning) kick();
   }
@@ -205,7 +220,9 @@
     $('#timerReset').addEventListener('click', reset);
     $('#swLap').addEventListener('click', () => {
       if (!s.swRunning) return;
-      s.laps.unshift($('#swDigits').textContent);
+      const total = swElapsed();
+      const prev = s.laps.length ? s.laps[0].total : 0;
+      s.laps.unshift({ total, split: total - prev });
       renderLaps();
     });
     $$('[data-timer-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.timerMode)));

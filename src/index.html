@@ -48,7 +48,7 @@
         <span class="clock-digits" id="clockDigits">00:00:00</span>
       </div>
       <div class="warning-sub" id="warningSub" hidden>현재 시각 <span id="warningNow"></span></div>
-      <p class="clock-message" id="clockMessage">쉬는 시간 1분 전에는 자리에 앉아주세요</p>
+      <p class="clock-message" id="clockMessage">수업 시간 1분 전에는 자리에 앉아 교과서를 준비합니다</p>
 
       <div class="bell-toggles" role="group" aria-label="종소리 켜기/끄기">
         <button class="bell-toggle" data-sound="classStart">
@@ -127,9 +127,13 @@
           <button class="btn btn-primary btn-lg" id="timerStart">▶ 시작</button>
           <button class="btn btn-ghost" id="swLap" hidden>🏁 기록</button>
         </div>
-        <ol class="laps" id="swLaps" hidden></ol>
       </div>
       <aside class="timer-side" id="timerSide">
+        <div class="side-card lap-card" id="swLapCard" hidden>
+          <h3>🏁 기록 <small id="swLapCount"></small></h3>
+          <p class="mini-help" id="swLapEmpty">스톱워치가 도는 동안 <b>🏁 기록</b>을 누르면 여기에 쌓여요</p>
+          <ol class="laps" id="swLaps"></ol>
+        </div>
         <div class="side-card">
           <h3>소리</h3>
           <label class="check"><input type="checkbox" id="timerTick" checked /> <span>종료 5초 전 경고음</span></label>
@@ -510,7 +514,7 @@
             <label class="switch-row"><span>🔔 수업 시작 시종음</span><input type="checkbox" class="switch" data-sound-setting="classStart" /></label>
             <label class="switch-row"><span>🎵 쉬는 시간 시작 종소리</span><input type="checkbox" class="switch" data-sound-setting="breakStart" /></label>
             <label class="switch-row"><span>⏰ 수업 1분 전 알림음 + 빨간 깜빡임</span><input type="checkbox" class="switch" data-sound-setting="warning" /></label>
-            <label class="switch-row"><span>🗣️ 1분 전 음성 안내 “쉬는 시간 1분 전입니다”</span><input type="checkbox" class="switch" data-sound-setting="voice" /></label>
+            <label class="switch-row"><span>🗣️ 1분 전 음성 안내 “수업 시간 1분 전입니다”</span><input type="checkbox" class="switch" data-sound-setting="voice" /></label>
             <label class="switch-row"><span>🪟 알림 때 창을 맨 앞으로 띄우기</span><input type="checkbox" class="switch" data-sound-setting="bringToFront" /></label>
           </div>
           <h3>종소리 종류</h3>

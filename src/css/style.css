@@ -198,7 +198,7 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
 .clock {
   margin: 4px 0 0;
   font-family: var(--font-main);
-  font-size: clamp(84px, 15.5vw, 260px);
+  font-size: clamp(96px, min(19.5vw, 31vh), 360px);
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -206,9 +206,16 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 8px 18px rgba(157, 124, 245, 0.25));
   white-space: nowrap;
+  /* 은은하게 숨 쉬는 연보라·핑크 빛 */
+  filter: drop-shadow(0 0 14px rgba(183, 156, 255, 0.75)) drop-shadow(0 0 34px rgba(255, 159, 207, 0.55)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3));
+  animation: clockGlow 3.2s ease-in-out infinite;
 }
+@keyframes clockGlow {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(183, 156, 255, 0.65)) drop-shadow(0 0 30px rgba(255, 159, 207, 0.45)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3)); }
+  50% { filter: drop-shadow(0 0 20px rgba(183, 156, 255, 0.95)) drop-shadow(0 0 52px rgba(255, 159, 207, 0.75)) drop-shadow(0 10px 22px rgba(157, 124, 245, 0.3)); }
+}
+@media (prefers-reduced-motion: reduce) { .clock { animation: none; } }
 .clock-digits .ampm { font-size: 0.32em; margin-right: 0.15em; letter-spacing: 0; }
 .clock-message {
   margin: 14px 0 0;
@@ -223,8 +230,8 @@ small { font-size: 0.85em; color: var(--ink-soft); font-weight: normal; }
 .warning-sub { margin-top: 6px; font-size: clamp(22px, 2.3vw, 32px); color: var(--ink-soft); }
 
 /* 디데이가 왼쪽 위에 있으면 시계가 겹치지 않게 크기를 맞춤 */
-body.has-pins .clock { font-size: clamp(64px, min(15.5vw, calc((100vw - 560px) / 5.2)), 260px); }
-body.has-pins.warning .clock { font-size: clamp(84px, min(15.5vw, calc((100vw - 560px) / 3.3)), 260px); }
+body.has-pins .clock { font-size: clamp(72px, min(19.5vw, 31vh, calc((100vw - 520px) / 4.5)), 360px); }
+body.has-pins.warning .clock { font-size: clamp(96px, min(19.5vw, 31vh, calc((100vw - 520px) / 2.9)), 360px); }
 
 /* 숫자 입력칸은 읽기 쉬운 메인 글꼴 */
 input[type='time'], input[type='date'], input[type='number'] { font-variant-numeric: tabular-nums; }
@@ -234,7 +241,7 @@ body.warning .clock {
   background: none;
   color: var(--red);
   -webkit-text-fill-color: var(--red);
-  filter: drop-shadow(0 0 22px rgba(255, 77, 109, 0.45));
+  filter: drop-shadow(0 0 18px rgba(255, 77, 109, 0.7)) drop-shadow(0 0 44px rgba(255, 77, 109, 0.45));
   animation: blink 1s steps(1, end) infinite;
 }
 body.warning .clock-message {
@@ -579,7 +586,12 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .adj.plus { color: #d6457f; }
 .adj.minus { color: #5f7fe0; }
 .adj:hover { border-color: var(--lav-400); }
-.laps { margin: 0; padding: 0 0 0 1.4em; max-height: 120px; overflow: auto; font-size: 16px; font-variant-numeric: tabular-nums; width: min(320px, 100%); }
+.lap-card { flex: 1; min-height: 0; }
+.laps { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 6px; font-variant-numeric: tabular-nums; }
+.laps li { display: grid; grid-template-columns: 34px 1fr auto; align-items: baseline; gap: 8px; padding: 9px 12px; border-radius: 12px; background: #fff; animation: pop 0.25s ease; }
+.laps li b { color: var(--lav-500); font-weight: 800; font-size: 15px; }
+.laps .lap-split { font-family: var(--font-main); font-size: 24px; }
+.laps .lap-total { font-size: 14px; color: var(--ink-soft); font-weight: 600; }
 .panel.expanded .timer-face { width: min(620px, 100%, 62vh); }
 .panel.expanded .td-input { font-size: clamp(80px, 12vw, 170px); }
 .panel.expanded .td-colon { font-size: clamp(70px, 10vw, 150px); }
@@ -722,7 +734,7 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 
 /* ===== 뽑기 레이스 ===== */
 .race-panel { width: min(1240px, calc(100vw - 40px)); max-height: 820px; }
-.race-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 120px 1fr 270px; gap: 14px; padding: 14px 18px 16px; }
+.race-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 120px 1fr 300px; gap: 14px; padding: 14px 18px 16px; }
 .race-mini { display: flex; flex-direction: column; gap: 6px; min-height: 0; cursor: pointer; }
 .race-mini h3 { margin: 0; font-size: 14px; }
 .race-mini-canvas { flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; background: var(--lav-50); border: 2px solid var(--lav-100); }
@@ -763,11 +775,12 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .race-win-n { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
 .race-win-n input { width: 64px; }
 .race-rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.race-rank li { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: #fff; font-weight: 700; font-size: 15px; animation: pop 0.3s ease; }
-.race-rank li b { min-width: 26px; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
-.race-rank li i { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+.race-rank li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; background: #fff; font-weight: 800; font-size: 22px; animation: pop 0.3s ease; }
+.race-rank li b { min-width: 34px; font-family: var(--font-main); font-weight: normal; font-size: 22px; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.race-rank li i { width: 18px; height: 18px; border-radius: 50%; flex: none; }
 .race-rank li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.race-rank li.win { background: var(--grad); color: #fff; }
+.race-rank li.win { background: var(--grad); color: #fff; font-size: 26px; padding: 12px 14px; }
+.race-rank li:nth-child(-n+3):not(.win) b { color: var(--pink-500); }
 .race-rank li.win b { color: #fff; }
 .race-rank li.empty { background: none; color: var(--ink-soft); font-weight: 500; font-family: var(--font-small); font-size: 18px; }
 .panel.expanded.race-panel { max-height: none; }

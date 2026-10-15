@@ -106,7 +106,7 @@
     warning(withVoice) {
       const len = play(WARNING, 'musicbox', { gain: 0.55 });
       play(WARNING, 'musicbox', { gain: 0.45, delay: len + 0.2 });
-      if (withVoice) setTimeout(() => speak('쉬는 시간 1분 전입니다. 자리에 앉아주세요.'), (len * 2 + 0.4) * 1000);
+      if (withVoice) setTimeout(() => speak('수업 시간 1분 전입니다. 자리에 앉아 교과서를 준비해 주세요.'), (len * 2 + 0.4) * 1000);
     },
     tick() { play([[96, 0.1]], 'soft', { gain: 0.35 }); },
     tickLast() { play([[101, 0.1]], 'soft', { gain: 0.45 }); },
