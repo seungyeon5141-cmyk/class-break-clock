@@ -10,12 +10,14 @@
   // ---------- 시간표 ----------
   const fromSec = (s) => `${pad(Math.floor(s / 3600) % 24)}:${pad(Math.floor((s % 3600) / 60))}`;
 
+  const isLunch = (p) => p.type === 'lunch';
+
   function renderSchedule() {
     const rows = Store.data.schedule.periods;
     const toSec = Clock.toSec;
-    const sorted = rows.map((p) => ({ id: p.id, s: toSec(p.start), e: toSec(p.end) }))
+    const sorted = rows.map((p) => ({ id: p.id, type: p.type, s: toSec(p.start), e: toSec(p.end) }))
       .filter((p) => p.s !== null && p.e !== null).sort((a, b) => a.s - b.s);
-    $('#schedRows').innerHTML = rows.map((p) => {
+    $('#schedRows').innerHTML = rows.map((p, i) => {
       const s = toSec(p.start);
       const e = toSec(p.end);
       let len = '';
@@ -24,32 +26,77 @@
       if (s === null || e === null) len = '<span class="muted bad">시간 확인</span>';
       else if (e <= s) len = '<span class="muted bad">끝이 더 빨라요</span>';
       else {
-        len = `<span class="muted">${Math.round((e - s) / 60)}분</span>`;
+        len = `<span class="muted${isLunch(p) ? ' lunch' : ''}">${Math.round((e - s) / 60)}분</span>`;
         const idx = sorted.findIndex((x) => x.id === p.id);
         const next = sorted[idx + 1];
         if (next) {
           const g = Math.round((next.s - e) / 60);
-          if (g < 0) { gap = '다음 교시와 겹쳐요'; gapCls = 'bad'; }
-          else if (g >= 30) { gap = `🍱 점심 ${g}분`; gapCls = 'lunch'; }
+          if (g < 0) { gap = '다음 줄과 겹쳐요'; gapCls = 'bad'; }
+          else if (g === 0) gap = next.type === 'lunch' ? '🍱 바로 점심' : '바로 이어짐';
+          else if (g >= 30 && !rows.some(isLunch)) { gap = `🍱 점심 ${g}분`; gapCls = 'lunch'; }
           else gap = `☕ ${g}분 (${fromSec(e)}~${fromSec(next.s)})`;
         } else gap = '🎒 하교';
       }
-      return `<tr data-id="${esc(p.id)}">
+      return `<tr data-id="${esc(p.id)}" class="${isLunch(p) ? 'row-lunch' : ''}">
+        <td class="move-cell"><span class="drag-handle" title="끌어서 순서 바꾸기" aria-hidden="true">⠿</span>
+          <span class="updown"><button data-move="-1" title="위로" aria-label="위로" ${i === 0 ? 'disabled' : ''}>▲</button><button data-move="1" title="아래로" aria-label="아래로" ${i === rows.length - 1 ? 'disabled' : ''}>▼</button></span></td>
         <td><input data-f="name" value="${esc(p.name)}" maxlength="12" /></td>
+        <td><select data-f="type"><option value="class" ${!isLunch(p) ? 'selected' : ''}>수업</option><option value="lunch" ${isLunch(p) ? 'selected' : ''}>점심</option></select></td>
         <td><input data-f="start" type="time" value="${esc(p.start)}" /></td>
         <td><input data-f="end" type="time" value="${esc(p.end)}" /></td>
         <td>${len}</td>
         <td><span class="muted ${gapCls}">${gap}</span></td>
         <td><button class="del-btn" data-del title="삭제">✕</button></td>
       </tr>`;
-    }).join('') || '<tr><td colspan="6" class="muted" style="padding:16px">교시를 추가해 주세요</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="muted" style="padding:16px">교시를 추가해 주세요</td></tr>';
     $('#skipWeekend').checked = Store.data.schedule.skipWeekend;
+    $('#schedAutoTime').checked = Store.data.schedule.autoRetime !== false;
   }
 
   function scheduleChanged(rerender = true) {
     Store.save();
     if (rerender) renderSchedule();
     Clock.refresh();
+  }
+
+  // 순서를 바꾼 뒤 시간 다시 맞추기: 각 줄의 길이는 그대로,
+  // 수업↔수업 사이는 원래 쉬는 시간(가장 흔한 값), 점심 앞뒤는 바로 이어지게
+  function retime(oldRows, newRows) {
+    const toSec = Clock.toSec;
+    const valid = newRows.every((p) => toSec(p.start) !== null && toSec(p.end) !== null && toSec(p.end) > toSec(p.start));
+    if (!valid) return false;
+    const byTime = oldRows.slice().sort((a, b) => toSec(a.start) - toSec(b.start));
+    const gaps = [];
+    for (let i = 1; i < byTime.length; i++) {
+      if (!isLunch(byTime[i - 1]) && !isLunch(byTime[i])) {
+        const g = toSec(byTime[i].start) - toSec(byTime[i - 1].end);
+        if (g > 0) gaps.push(g);
+      }
+    }
+    const counts = {};
+    gaps.forEach((g) => { counts[g] = (counts[g] || 0) + 1; });
+    const brk = Number(Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a - b)[0]) || 600;
+    let t = Math.min(...newRows.map((p) => toSec(p.start)));
+    newRows.forEach((p, i) => {
+      const len = toSec(p.end) - toSec(p.start);
+      p.start = fromSec(t);
+      p.end = fromSec(t + len);
+      const next = newRows[i + 1];
+      t += len + (next && !isLunch(p) && !isLunch(next) ? brk : 0);
+    });
+    return t <= 24 * 3600;
+  }
+
+  function moveRow(from, to) {
+    const rows = Store.data.schedule.periods;
+    if (to < 0 || to >= rows.length || from === to) return;
+    const before = rows.map((p) => ({ ...p }));
+    const [row] = rows.splice(from, 1);
+    rows.splice(to, 0, row);
+    if (Store.data.schedule.autoRetime !== false && !retime(before, rows)) {
+      toast('시간을 확인할 수 없는 줄이 있어서 순서만 바꿨어요');
+    }
+    scheduleChanged();
   }
 
   function initSchedule() {
@@ -60,27 +107,82 @@
       const p = Store.data.schedule.periods.find((x) => x.id === tr.dataset.id);
       if (!p) return;
       p[f] = e.target.value.trim();
+      if (f === 'type' && p.type === 'lunch' && /교시$/.test(p.name)) p.name = '점심 시간';
       scheduleChanged();
     });
     $('#schedRows').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      const rows = Store.data.schedule.periods;
+      const idx = rows.findIndex((p) => p.id === tr.dataset.id);
+      const mv = e.target.closest('[data-move]');
+      if (mv) { moveRow(idx, idx + Number(mv.dataset.move)); return; }
       if (!e.target.closest('[data-del]')) return;
-      const id = e.target.closest('tr').dataset.id;
-      Store.data.schedule.periods = Store.data.schedule.periods.filter((p) => p.id !== id);
+      Store.data.schedule.periods = rows.filter((p) => p.id !== tr.dataset.id);
       scheduleChanged();
     });
+
+    // ⠿ 손잡이를 잡고 끌어서 순서 바꾸기
+    const tbody = $('#schedRows');
+    let dragId = null;
+    tbody.addEventListener('pointerdown', (e) => {
+      const h = e.target.closest('.drag-handle');
+      if (h) h.closest('tr').draggable = true;
+    });
+    tbody.addEventListener('dragstart', (e) => {
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      dragId = tr.dataset.id;
+      tr.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragId);
+    });
+    tbody.addEventListener('dragover', (e) => {
+      if (!dragId) return;
+      e.preventDefault();
+      const tr = e.target.closest('tr[data-id]');
+      $$('#schedRows tr').forEach((r) => r.classList.remove('drop-before', 'drop-after'));
+      if (!tr || tr.dataset.id === dragId) return;
+      const r = tr.getBoundingClientRect();
+      tr.classList.add(e.clientY < r.top + r.height / 2 ? 'drop-before' : 'drop-after');
+    });
+    tbody.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const tr = e.target.closest('tr[data-id]');
+      if (!dragId || !tr || tr.dataset.id === dragId) return;
+      const rows = Store.data.schedule.periods;
+      const from = rows.findIndex((p) => p.id === dragId);
+      let to = rows.findIndex((p) => p.id === tr.dataset.id);
+      const r = tr.getBoundingClientRect();
+      if (e.clientY >= r.top + r.height / 2) to += 1;
+      if (from < to) to -= 1;
+      moveRow(from, to);
+    });
+    tbody.addEventListener('dragend', () => {
+      dragId = null;
+      $$('#schedRows tr').forEach((r) => { r.draggable = false; r.classList.remove('dragging', 'drop-before', 'drop-after'); });
+    });
+
     $('#schedAdd').addEventListener('click', () => {
       const list = Clock.periods();
       const last = list[list.length - 1];
       const s = last ? last.e + 600 : 9 * 3600;
-      const n = Store.data.schedule.periods.length + 1;
-      Store.data.schedule.periods.push({ id: Store.uid(), name: `${n}교시`, start: fromSec(s), end: fromSec(s + 2400) });
+      const n = Store.data.schedule.periods.filter((p) => !isLunch(p)).length + 1;
+      Store.data.schedule.periods.push({ id: Store.uid(), name: `${n}교시`, type: 'class', start: fromSec(s), end: fromSec(s + 2400) });
       scheduleChanged();
+    });
+    $('#schedAddLunch').addEventListener('click', () => {
+      if (Store.data.schedule.periods.some(isLunch)) { toast('점심 줄이 이미 있어요. 종류를 바꾸거나 시간을 고쳐 주세요'); return; }
+      Store.data.schedule.periods.push({ id: Store.uid(), name: '점심 시간', type: 'lunch', start: '12:10', end: '13:00' });
+      scheduleChanged();
+      toast('점심 줄을 추가했어요. ⠿로 원하는 자리에 옮기세요');
     });
     $('#schedSort').addEventListener('click', () => {
       Store.data.schedule.periods.sort((a, b) => (Clock.toSec(a.start) ?? 1e9) - (Clock.toSec(b.start) ?? 1e9));
       scheduleChanged();
     });
     $('#skipWeekend').addEventListener('change', (e) => { Store.data.schedule.skipWeekend = e.target.checked; scheduleChanged(false); });
+    $('#schedAutoTime').addEventListener('change', (e) => { Store.data.schedule.autoRetime = e.target.checked; Store.save(); });
     $('#genApply').addEventListener('click', async () => {
       const start = Clock.toSec($('#genStart').value);
       const cls = Number($('#genClass').value) * 60;
@@ -93,8 +195,12 @@
       const periods = [];
       let t = start;
       for (let i = 1; i <= count; i++) {
-        periods.push({ id: Store.uid(), name: `${i}교시`, start: fromSec(t), end: fromSec(t + cls) });
-        t += cls + (i === lunchAfter ? lunch : brk);
+        periods.push({ id: Store.uid(), name: `${i}교시`, type: 'class', start: fromSec(t), end: fromSec(t + cls) });
+        t += cls;
+        if (i === lunchAfter && lunch > 0 && i < count) {
+          periods.push({ id: Store.uid(), name: '점심 시간', type: 'lunch', start: fromSec(t), end: fromSec(t + lunch) });
+          t += lunch;
+        } else t += brk;
       }
       if (t > 24 * 3600) { toast('하루를 넘어가요. 값을 줄여 주세요'); return; }
       Store.data.schedule.periods = periods;

@@ -68,6 +68,7 @@
     <nav class="dock" aria-label="도구">
       <button class="dock-btn" data-open="timerPanel"><span class="dock-ico">⏳</span><span>타이머</span></button>
       <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico">🎲</span><span>뽑기</span></button>
+      <button class="dock-btn" data-open="racePanel"><span class="dock-ico">🏁</span><span>뽑기 레이스</span></button>
       <button class="dock-btn" data-open="noticePanel"><span class="dock-ico">📌</span><span>공지</span></button>
       <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico">📅</span><span>디데이</span></button>
       <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico">🎡</span><span>돌림판</span></button>
@@ -154,9 +155,9 @@
   </section>
 
   <!-- ===== 뽑기 ===== -->
-  <section class="panel" id="pickerPanel" hidden aria-label="학생 뽑기">
+  <section class="panel" id="pickerPanel" hidden aria-label="뽑기">
     <header class="panel-head">
-      <h2><span class="ph-ico">🎲</span>학생 뽑기</h2>
+      <h2><span class="ph-ico">🎲</span>뽑기</h2>
       <div class="panel-head-actions">
         <button class="ph-btn" data-expand title="크게 보기">⤢</button>
         <button class="ph-btn" data-close title="닫기">✕</button>
@@ -165,6 +166,11 @@
     <div class="panel-notice" id="pickerNotice"></div>
     <div class="panel-body picker-layout">
       <div class="picker-main">
+        <div class="mode-tabs" id="pickerMode" role="tablist">
+          <button class="mode-tab active" data-mode="student"><span>👩‍🎓</span>학생 뽑기</button>
+          <button class="mode-tab" data-mode="group"><span>👥</span>모둠 선출</button>
+          <button class="mode-tab" data-mode="custom"><span>✏️</span>직접 입력 선출</button>
+        </div>
         <div class="seg-tabs" id="pickerGender">
           <button class="seg active" data-gender="all">전체</button>
           <button class="seg" data-gender="M">남학생만</button>
@@ -176,15 +182,33 @@
         <div class="picker-controls">
           <div class="stepper">
             <button class="step" id="pickCountMinus" aria-label="인원 줄이기">－</button>
-            <span><b id="pickCount">1</b>명</span>
+            <span><b id="pickCount">1</b><span id="pickUnit">명</span></span>
             <button class="step" id="pickCountPlus" aria-label="인원 늘리기">＋</button>
           </div>
           <button class="btn btn-primary btn-lg" id="pickGo">🎲 뽑기</button>
-          <label class="check"><input type="checkbox" id="pickNoRepeat" checked /> <span>뽑힌 학생 제외</span></label>
+          <div class="pick-options">
+            <label class="check"><input type="checkbox" id="pickNoRepeat" checked /> <span id="pickNoRepeatLabel">뽑힌 학생 제외</span></label>
+            <label class="check"><input type="checkbox" id="pickEffect" checked /> <span>추첨 효과 보기</span></label>
+          </div>
         </div>
       </div>
       <aside class="picker-side">
-        <div class="side-card grow">
+        <div class="side-card grow" data-mode-card="group" hidden>
+          <h3>모둠 수</h3>
+          <p class="mini-help">우리 반 모둠 수를 정해 주세요</p>
+          <div class="big-stepper">
+            <button class="step" id="groupMinus" aria-label="모둠 수 줄이기">－</button>
+            <b id="groupCount">5</b>
+            <button class="step" id="groupPlus" aria-label="모둠 수 늘리기">＋</button>
+          </div>
+          <div class="group-chips" id="groupChips"></div>
+        </div>
+        <div class="side-card grow" data-mode-card="custom" hidden>
+          <h3>항목 입력 <small><b id="customCount">0</b>/60</small></h3>
+          <p class="mini-help">한 줄에 하나씩 입력해 주세요</p>
+          <textarea class="field area" id="customItems" placeholder="예)&#10;칭찬 릴레이&#10;오늘의 발표왕&#10;급식 먼저 먹기"></textarea>
+        </div>
+        <div class="side-card grow" data-mode-card="student">
           <h3>학생 명단 <small id="pickerCountInfo"></small></h3>
           <p class="mini-help">오늘 결석한 학생은 눌러서 빼 주세요</p>
           <div class="student-chips" id="studentChips"></div>
@@ -335,6 +359,73 @@
     </div>
   </div>
 
+  <!-- ===== 뽑기 레이스 ===== -->
+  <section class="panel race-panel" id="racePanel" hidden aria-label="뽑기 레이스">
+    <header class="panel-head">
+      <h2><span class="ph-ico">🏁</span>뽑기 레이스</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-expand title="크게 보기">⤢</button>
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="race-layout">
+      <aside class="race-mini" id="raceMiniWrap" title="전체 맵">
+        <h3>🗺️ 전체 맵</h3>
+        <div class="race-mini-canvas"><canvas id="raceMini"></canvas></div>
+      </aside>
+      <div class="race-stage">
+        <input class="race-title" id="raceTitle" maxlength="20" placeholder="제목을 입력하세요 (최대 20자)" aria-label="레이스 제목" />
+        <div class="race-stage-wrap" id="raceStageWrap">
+          <canvas id="raceCanvas" aria-label="뽑기 레이스 화면"></canvas>
+          <div class="race-count" id="raceCount" hidden></div>
+          <div class="race-winner" id="raceWinner" hidden>
+            <div class="rw-card">
+              <div class="rw-rank" id="raceWinnerRank">1등</div>
+              <div class="rw-name" id="raceWinnerName"></div>
+              <button class="btn btn-ghost" id="raceWinnerClose">계속 보기</button>
+            </div>
+          </div>
+        </div>
+        <div class="race-controls">
+          <button class="btn btn-ghost" id="raceReset">🔀 다시 섞기</button>
+          <button class="btn btn-primary btn-lg" id="raceStart">▶ 시작하기</button>
+          <button class="round-btn" id="raceSpeed" title="속도">1x</button>
+          <button class="round-btn" id="raceSound" title="소리 켜기/끄기" aria-label="소리 켜기/끄기">🔊</button>
+        </div>
+      </div>
+      <aside class="race-side">
+        <div class="seg-tabs race-tabs" id="raceTabs">
+          <button class="seg active" data-rtab="setup">참가자</button>
+          <button class="seg" data-rtab="rank">🏆 순위 <small id="raceProgress"></small></button>
+        </div>
+        <div class="race-setup" id="raceSetup">
+          <h4>참가자 <small id="raceCountInfo"></small></h4>
+          <div class="seg-tabs" id="raceSource">
+            <button class="seg active" data-source="students">학생 명단</button>
+            <button class="seg" data-source="custom">직접 입력</button>
+          </div>
+          <p class="mini-help" id="raceStudentsInfo"></p>
+          <div id="raceCustomWrap" hidden>
+            <textarea class="field area" id="raceCustom" placeholder="한 줄에 한 명씩 (최대 60명)"></textarea>
+          </div>
+          <h4>당첨 순위</h4>
+          <div class="race-win-row">
+            <select class="field sm" id="raceWin">
+              <option value="first">🥇 1등이 당첨</option>
+              <option value="last">🐢 꼴등이 당첨</option>
+              <option value="n">🎯 직접 정하기</option>
+            </select>
+            <label class="race-win-n"><input class="field sm" type="number" id="raceWinN" min="1" max="60" /> 등</label>
+          </div>
+          <p class="mini-help">카메라는 지금 당첨 순위에 있는 구슬을 따라가요</p>
+        </div>
+        <div class="race-rank-wrap" id="raceRankWrap" hidden>
+          <ol class="race-rank" id="raceRank"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
   <!-- ===== 돌림판 ===== -->
   <section class="panel" id="roulettePanel" hidden aria-label="돌림판">
     <header class="panel-head">
@@ -384,17 +475,19 @@
         <!-- 시간표 -->
         <section class="stab" data-stab-panel="schedule">
           <h3>수업 시간표</h3>
-          <p class="mini-help">수업(교시) 시작·끝 시간을 넣으면 사이 시간은 자동으로 <b>쉬는 시간</b>이 돼요. 30분 이상 비면 점심시간으로 표시해요.</p>
+          <p class="mini-help">교시 시작·끝 시간을 넣으면 사이 시간은 자동으로 <b>쉬는 시간</b>이 돼요. 종류를 <b>점심</b>으로 바꾸면 종 없이 점심 시간으로 표시해요. ⠿를 끌거나 ▲▼로 순서를 옮길 수 있어요.</p>
           <div class="sched-table-wrap">
             <table class="sched-table">
-              <thead><tr><th>이름</th><th>시작</th><th>끝</th><th>수업</th><th>다음 쉬는 시간</th><th></th></tr></thead>
+              <thead><tr><th></th><th>이름</th><th>종류</th><th>시작</th><th>끝</th><th>길이</th><th>다음 쉬는 시간</th><th></th></tr></thead>
               <tbody id="schedRows"></tbody>
             </table>
           </div>
           <div class="row-btns">
             <button class="btn btn-soft" id="schedAdd">＋ 교시 추가</button>
+            <button class="btn btn-soft" id="schedAddLunch">🍱 점심 추가</button>
             <button class="btn btn-soft" id="schedSort">⇅ 시간순 정렬</button>
           </div>
+          <label class="check"><input type="checkbox" id="schedAutoTime" /> <span>순서를 옮기면 시간도 자동으로 맞추기 (수업 길이·쉬는 시간 유지)</span></label>
           <details class="gen-box">
             <summary>⚡ 시간표 한 번에 만들기</summary>
             <div class="gen-grid">
@@ -503,6 +596,8 @@
   <script src="js/timer.js"></script>
   <script src="js/picker.js"></script>
   <script src="js/roulette.js"></script>
+  <script src="vendor/matter.min.js"></script>
+  <script src="js/race.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/app.js"></script>
 </body>

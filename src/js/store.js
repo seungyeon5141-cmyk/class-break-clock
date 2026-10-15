@@ -9,10 +9,12 @@
         { id: 'p2', name: '2교시', start: '09:50', end: '10:30' },
         { id: 'p3', name: '3교시', start: '10:40', end: '11:20' },
         { id: 'p4', name: '4교시', start: '11:30', end: '12:10' },
+        { id: 'lunch', name: '점심 시간', start: '12:10', end: '13:00', type: 'lunch' },
         { id: 'p5', name: '5교시', start: '13:00', end: '13:40' },
         { id: 'p6', name: '6교시', start: '13:50', end: '14:30' },
       ],
       skipWeekend: true,
+      autoRetime: true,
     },
     sound: {
       classStart: true,
@@ -24,14 +26,18 @@
       volume: 80,
     },
     general: {
-      message: '쉬는 시간 1분 전에는 자리에 앉아주세요',
+      message: '쉬는 시간 1분 전에는 자리에 앉아 교과서를 준비합니다.',
       hour12: false,
     },
     students: [],
     ddays: [],
     notices: [],
-    picker: { count: 1, noRepeat: true, gender: 'all', pickedIds: [], excludedIds: [], secretIds: [], history: [] },
+    picker: {
+      mode: 'student', count: 1, noRepeat: true, effect: true, gender: 'all', pickedIds: [], excludedIds: [], secretIds: [], history: [],
+      groupCount: 5, groupPicked: [], customItems: [], customPicked: [],
+    },
     timer: { title: '쉬는 시간', seconds: 300, tick: true, endSound: true },
+    race: { source: 'students', customItems: [], winRank: 'first', winN: 2, title: '', speed: 1, sound: true },
     roulette: { items: ['칭찬 스티커', '발표하기', '청소 당번', '선생님 도우미', '자유 시간', '한 번 더!'], removeWinner: false },
   };
 
@@ -50,10 +56,15 @@
     return saved === undefined || saved === null ? base : saved;
   }
 
+  // 예전 기본 문구를 그대로 쓰던 경우에만 새 기본 문구로 바꿈 (직접 고친 문구는 유지)
+  const OLD_DEFAULT_MESSAGES = ['쉬는 시간 1분 전에는 자리에 앉아주세요'];
+
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      return raw ? merge(clone(DEFAULTS), JSON.parse(raw)) : clone(DEFAULTS);
+      const data = raw ? merge(clone(DEFAULTS), JSON.parse(raw)) : clone(DEFAULTS);
+      if (OLD_DEFAULT_MESSAGES.includes(data.general.message)) data.general.message = DEFAULTS.general.message;
+      return data;
     } catch {
       return clone(DEFAULTS);
     }

@@ -10,10 +10,10 @@
     return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 : null;
   };
 
-  // 올바른 교시만 시작 시각 순서로
+  // 올바른 교시만 시작 시각 순서로. type: 'class'(수업) | 'lunch'(점심)
   function periods() {
     return Store.data.schedule.periods
-      .map((p) => ({ ...p, s: toSec(p.start), e: toSec(p.end) }))
+      .map((p) => ({ ...p, type: p.type === 'lunch' ? 'lunch' : 'class', s: toSec(p.start), e: toSec(p.end) }))
       .filter((p) => p.s !== null && p.e !== null && p.e > p.s)
       .sort((a, b) => a.s - b.s);
   }
@@ -26,14 +26,18 @@
   // 지금이 수업/쉬는 시간/점심/등교 전/방과 후 중 어디인지
   function statusAt(sec, list) {
     if (!list.length) return { type: 'none' };
+    const classes = list.filter((p) => p.type === 'class');
     const cur = list.find((p) => p.s <= sec && sec < p.e);
-    if (cur) return { type: 'class', period: cur, remain: cur.e - sec };
-    const next = list.find((p) => p.s > sec);
+    if (cur && cur.type === 'class') return { type: 'class', period: cur, remain: cur.e - sec };
+    const next = classes.find((p) => p.s > sec);
+    if (cur) return { type: 'lunch', period: cur, next, until: next ? next.s - sec : null, remain: cur.e - sec };
     const prev = list.filter((p) => p.e <= sec).pop();
     if (!next) return { type: 'after', prev };
     const until = next.s - sec;
     if (!prev) return { type: 'before', next, until };
-    return { type: next.s - prev.e >= LUNCH_GAP ? 'lunch' : 'break', next, prev, until };
+    // 점심을 따로 넣지 않은 시간표는 30분 이상 빈 시간을 점심으로 표시
+    const hasLunchRow = list.some((p) => p.type === 'lunch');
+    return { type: !hasLunchRow && next.s - prev.e >= LUNCH_GAP ? 'lunch' : 'break', next, prev, until };
   }
 
   function fmtRemain(sec) {
@@ -89,15 +93,16 @@
     if (isWeekendOff(now)) { lastSec = sec; return; }
     // lastSec < t <= sec 사이에 지난 시각만 울림. 절전 등으로 오래 멈췄다면 지난 종은 생략
     const crossed = (t) => lastSec < t && t <= sec && sec - t <= 5;
-    list.forEach((p, i) => {
-      const prev = list[i - 1];
-      const next = list[i + 1];
-      // 1분 전 알림: 그 시각이 쉬는 시간(또는 등교 전)일 때만
+    // 종은 수업 줄에만. 점심 줄은 종 없이 시간표 표시만
+    const classes = list.filter((p) => p.type === 'class');
+    classes.forEach((p) => {
+      // 1분 전 알림: 그 시각이 수업 중이 아닐 때만 (쉬는 시간·점심·등교 전)
       const warnAt = p.s - WARN_SEC;
-      if (crossed(warnAt) && (!prev || prev.e <= warnAt)) fire('warning', `${dayKey}-w-${p.id}`);
+      const inClass = classes.some((c) => c.s <= warnAt && warnAt < c.e);
+      if (crossed(warnAt) && !inClass) fire('warning', `${dayKey}-w-${p.id}`);
       if (crossed(p.s)) fire('classStart', `${dayKey}-s-${p.id}`);
       // 다음 수업이 바로 이어지면 쉬는 시간 종은 생략
-      if (crossed(p.e) && !(next && next.s <= p.e)) fire('breakStart', `${dayKey}-e-${p.id}`);
+      if (crossed(p.e) && !classes.some((c) => c !== p && c.s <= p.e && c.e > p.e)) fire('breakStart', `${dayKey}-e-${p.id}`);
     });
     lastSec = sec;
   }
@@ -121,11 +126,11 @@
       digits.textContent = fmtRemain(st.until);
       $('#warningSub').hidden = false;
       $('#warningNow').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      $('#clockMessage').textContent = `쉬는 시간 1분 전입니다! ${st.next.name} 준비하고 자리에 앉아주세요 🪑`;
+      $('#clockMessage').textContent = `쉬는 시간 1분 전입니다! 자리에 앉아 ${st.next.name} 교과서를 준비해요 📚`;
     } else {
       digits.innerHTML = fmtClock(now);
       $('#warningSub').hidden = true;
-      $('#clockMessage').textContent = Store.data.general.message || '쉬는 시간 1분 전에는 자리에 앉아주세요';
+      $('#clockMessage').textContent = Store.data.general.message || Store.defaults.general.message;
     }
 
     $('#dateLine').textContent =
@@ -139,8 +144,10 @@
         chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
           : `☕ 쉬는 시간<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`; break;
       case 'lunch':
-        chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
-          : `🍱 점심 시간<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`; break;
+        if (warning) chip = `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`;
+        else if (st.next) chip = `🍱 ${esc(st.period ? st.period.name : '점심 시간')}<span class="sc-sub">${esc(st.next.name)}까지 ${fmtRemain(st.until)}</span>`;
+        else chip = `🍱 ${esc(st.period ? st.period.name : '점심 시간')}<span class="sc-sub">끝나기까지 ${fmtRemain(st.remain)}</span>`;
+        break;
       case 'before':
         chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
           : `🌤️ 좋은 아침이에요<span class="sc-sub">${esc(st.next.name)} ${esc(st.next.start)} 시작</span>`; break;
@@ -151,14 +158,15 @@
     $('#statusChip').innerHTML = chip;
 
     // 시간표 줄은 바뀔 때만 다시 그림
-    const curId = st.type === 'class' ? st.period.id : '';
+    const curId = st.period ? st.period.id : '';
     const nextId = st.next ? st.next.id : '';
-    const key = JSON.stringify([list.map((p) => [p.id, p.name, p.start, p.end, p.e <= sec]), curId, nextId, weekendOff]);
+    const key = JSON.stringify([list.map((p) => [p.id, p.type, p.name, p.start, p.end, p.e <= sec]), curId, nextId, weekendOff]);
     if (key !== lastRenderKey) {
       lastRenderKey = key;
       $('#timeline').innerHTML = list.map((p) => {
         const cls = p.id === curId ? 'now' : (p.e <= sec ? 'done' : '');
-        return `<div class="tl-item ${cls}"><b>${esc(p.name)}</b>${esc(p.start)}~${esc(p.end)}</div>`;
+        const lunch = p.type === 'lunch' ? ' lunch' : '';
+        return `<div class="tl-item ${cls}${lunch}"><b>${p.type === 'lunch' ? '🍱 ' : ''}${esc(p.name)}</b>${esc(p.start)}~${esc(p.end)}</div>`;
       }).join('');
     }
   }
