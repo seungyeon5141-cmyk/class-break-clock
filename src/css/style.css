@@ -1143,3 +1143,14 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .s-chip.g-m.picked, .s-chip.g-f.picked { opacity: 0.55; }
 .rp-chip.g-m { background: #E3F3FF; }
 .rp-chip.g-f { background: #FFE6EA; }
+
+/* 디데이 순서 바꾸기 */
+.dd-move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: none; }
+.dd-move-btn { width: 30px; height: 26px; border-radius: 8px; font-size: 11px; color: var(--ink-soft); background: var(--lav-50); border: 2px solid var(--lav-100); }
+.dd-move-btn:hover:not(:disabled) { border-color: var(--lav-400); color: var(--ink); }
+.dd-move-btn:disabled { opacity: 0.3; cursor: default; }
+.dd-handle { cursor: grab; color: var(--ink-faint); font-size: 18px; line-height: 1; }
+.dd-handle:hover { color: var(--lav-500); }
+.dday-item.dragging { opacity: 0.4; }
+.dday-item.drop-before { box-shadow: 0 -4px 0 var(--lav-500); border-radius: 12px; }
+.dday-item.drop-after { box-shadow: 0 4px 0 var(--lav-500); border-radius: 12px; }

@@ -66,8 +66,13 @@
       $('#ddayList').innerHTML = '<div class="dday-empty">아직 디데이가 없어요.<br />오른쪽 아래 ＋ 버튼으로 만들어 보세요 📅</div>';
       return;
     }
-    $('#ddayList').innerHTML = list.map((d) => `
+    $('#ddayList').innerHTML = list.map((d, i) => `
       <div class="dday-item" data-id="${esc(d.id)}">
+        <div class="dd-move">
+          <button class="dd-move-btn" data-act="up" title="위로" aria-label="위로" ${i === 0 ? 'disabled' : ''}>▲</button>
+          <span class="dd-handle" title="끌어서 순서 바꾸기" aria-hidden="true">⠿</span>
+          <button class="dd-move-btn" data-act="down" title="아래로" aria-label="아래로" ${i === list.length - 1 ? 'disabled' : ''}>▼</button>
+        </div>
         ${cardHtml(d)}
         <div class="dday-item-actions">
           <label class="switch-row"><span>화면에서 보기</span><input type="checkbox" class="switch" data-act="show" ${d.show ? 'checked' : ''} /></label>
@@ -80,6 +85,58 @@
   }
 
   function renderAll() { renderPins(); renderList(); }
+
+  // 순서 바꾸기 (메인 화면 왼쪽 위 순서도 같이 바뀜)
+  function move(from, to) {
+    const list = Store.data.ddays;
+    if (to < 0 || to >= list.length || from === to) return;
+    const [d] = list.splice(from, 1);
+    list.splice(to, 0, d);
+    Store.save();
+    renderAll();
+  }
+
+  function initReorder() {
+    const box = $('#ddayList');
+    let dragId = null;
+    box.addEventListener('pointerdown', (e) => {
+      const h = e.target.closest('.dd-handle');
+      if (h) h.closest('.dday-item').draggable = true;
+    });
+    box.addEventListener('dragstart', (e) => {
+      const it = e.target.closest('.dday-item');
+      if (!it) return;
+      dragId = it.dataset.id;
+      it.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragId);
+    });
+    box.addEventListener('dragover', (e) => {
+      if (!dragId) return;
+      e.preventDefault();
+      box.querySelectorAll('.dday-item').forEach((x) => x.classList.remove('drop-before', 'drop-after'));
+      const it = e.target.closest('.dday-item');
+      if (!it || it.dataset.id === dragId) return;
+      const r = it.getBoundingClientRect();
+      it.classList.add(e.clientY < r.top + r.height / 2 ? 'drop-before' : 'drop-after');
+    });
+    box.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const it = e.target.closest('.dday-item');
+      if (!dragId || !it || it.dataset.id === dragId) return;
+      const list = Store.data.ddays;
+      const from = list.findIndex((d) => d.id === dragId);
+      let to = list.findIndex((d) => d.id === it.dataset.id);
+      const r = it.getBoundingClientRect();
+      if (e.clientY >= r.top + r.height / 2) to += 1;
+      if (from < to) to -= 1;
+      move(from, to);
+    });
+    box.addEventListener('dragend', () => {
+      dragId = null;
+      box.querySelectorAll('.dday-item').forEach((x) => { x.draggable = false; x.classList.remove('dragging', 'drop-before', 'drop-after'); });
+    });
+  }
 
   // ---- 만들기/수정 모달 ----
   let draft = null;
@@ -172,11 +229,15 @@
       if (e.target.dataset && e.target.dataset.custom) { swatchHtml(); preview(); }
     });
 
+    initReorder();
     $('#ddayList').addEventListener('click', async (e) => {
       const item = e.target.closest('.dday-item');
       const act = e.target.dataset.act;
       if (!item || !act) return;
       const id = item.dataset.id;
+      const idx = Store.data.ddays.findIndex((d) => d.id === id);
+      if (act === 'up') { move(idx, idx - 1); return; }
+      if (act === 'down') { move(idx, idx + 1); return; }
       if (act === 'edit') openModal(id);
       if (act === 'del') {
         const d = Store.data.ddays.find((x) => x.id === id);

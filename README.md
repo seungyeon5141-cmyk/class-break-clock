@@ -66,6 +66,7 @@
 - 제목(20자) · 날짜 · 배경 색 · 글자 색 · 글자 위치(상단/하단)
 - 배경 색: **파스텔 키컬러 10가지 + 사용자 지정 컬러칩 + 투명**
 - **화면에서 보기**를 켜면 메인 화면 **왼쪽 위에 고정**, 끄면 숨김 (최대 50개)
+- ⠿ 손잡이를 끌거나 ▲▼로 **순서 바꾸기** (메인 화면 순서도 함께 바뀜)
 
 ### 🎡 돌림판
 - 한 줄에 하나씩 항목 입력, 학생 명단 불러오기, 섞기, 당첨 항목 빼기
@@ -84,13 +85,13 @@
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.13.2.exe`가 들어 있어요
-3. `v1.13.2` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.14.0.exe`가 들어 있어요
+3. `v1.14.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.13.2.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.14.0.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.
