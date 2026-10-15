@@ -38,6 +38,12 @@
 - 당첨 순위: 1등 / 꼴등 / 직접 정하기(N등). 카메라가 당첨 자리의 구슬을 따라가요
 - 전체 맵, 실시간 순위, 제목, 속도 1x·2x·3x, 소리 켜기·끄기, 3·2·1 출발 카운트다운
 
+### 📢 긴급 팝업
+- “조용히 합시다”처럼 갑자기 알릴 내용을 **화면 가득 아주 크게** 띄워요 (기본 글꼴: 프리텐다드 Black)
+- 자주 쓰는 문구를 저장해 두고 한 번 눌러 바로 띄우기, ★로 문구 추가
+- 색 6가지, 글꼴 4가지, 자동으로 닫기(직접 닫기·5초·10초·30초·1분), 띄울 때 알림음
+- 화면 아무 곳이나 누르거나 Esc를 누르면 닫혀요
+
 ### 📌 공지사항 (포스트잇)
 - 하단 **공지** 버튼 › ＋ 로 공지를 쓰면 메인 화면에 **포스트잇**으로 붙어요 (줄바꿈 가능, 최대 20개)
 - **포스트잇 색**: 파스텔 컬러칩 10가지 + 사용자 지정 색
@@ -66,13 +72,13 @@
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.6.0.exe`가 들어 있어요
-3. `v1.6.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.7.0.exe`가 들어 있어요
+3. `v1.7.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.6.0.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.7.0.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.
@@ -91,7 +97,7 @@ main.js          Electron 메인 (창, 트레이, 자동 실행)
 preload.js       화면에 노출하는 안전한 API
 src/index.html   화면
 src/css/         파스텔 테마
-src/js/          clock(시간표·자동 종), notice(공지 포스트잇), race(뽑기 레이스), timer, picker, dday, roulette, settings, sound(종소리 합성)
+src/js/          clock(시간표·자동 종), notice(공지 포스트잇), popup(긴급 팝업), race(뽑기 레이스), timer, picker, dday, roulette, settings, sound(종소리 합성)
 src/vendor/      matter.min.js (물리 엔진, MIT)
 src/fonts/       페이퍼로지, 프리텐다드, 온글잎 의연체
 sample/          학생 명단 CSV 예시

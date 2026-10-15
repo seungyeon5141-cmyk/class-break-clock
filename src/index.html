@@ -70,6 +70,7 @@
       <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico">🎲</span><span>뽑기</span></button>
       <button class="dock-btn" data-open="racePanel"><span class="dock-ico">🏁</span><span>뽑기 레이스</span></button>
       <button class="dock-btn" data-open="noticePanel"><span class="dock-ico">📌</span><span>공지</span></button>
+      <button class="dock-btn" data-open="popupPanel"><span class="dock-ico">📢</span><span>팝업</span></button>
       <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico">📅</span><span>디데이</span></button>
       <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico">🎡</span><span>돌림판</span></button>
       <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico">⚙️</span><span>설정</span></button>
@@ -296,6 +297,47 @@
         <button class="btn btn-primary" id="ddaySave">만들기</button>
       </div>
     </div>
+  </div>
+
+  <!-- ===== 긴급 팝업 ===== -->
+  <section class="panel panel-narrow" id="popupPanel" hidden aria-label="팝업">
+    <header class="panel-head">
+      <h2><span class="ph-ico">📢</span>팝업</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-notice">학생들에게 갑자기 알려야 할 내용을 화면 가득 크게 띄워요. 화면 아무 곳이나 누르거나 Esc를 누르면 닫혀요.</div>
+    <div class="panel-body popup-body">
+      <div class="popup-preview" id="popupPreview" aria-hidden="true"></div>
+      <div class="popup-input-row">
+        <input class="field popup-input" id="popupInput" maxlength="60" placeholder="예) 조용히 합시다" aria-label="팝업 내용" />
+        <button class="btn btn-soft" id="popupSave" title="자주 쓰는 문구에 저장">★ 저장</button>
+      </div>
+      <h4>자주 쓰는 문구 <small>누르면 바로 띄워요</small></h4>
+      <div class="pp-chips" id="popupPresets"></div>
+      <div class="popup-opts">
+        <div>
+          <h4>색</h4>
+          <div class="pt-chips" id="popupThemes"></div>
+        </div>
+        <div>
+          <h4>자동으로 닫기</h4>
+          <div class="seg-tabs" id="popupDurations"></div>
+        </div>
+      </div>
+      <h4>글꼴</h4>
+      <div class="pf-chips" id="popupFonts"></div>
+      <label class="check"><input type="checkbox" id="popupSound" /> <span>띄울 때 “띵동” 알림음</span></label>
+      <button class="btn btn-primary btn-lg popup-go" id="popupShow">📢 크게 띄우기</button>
+    </div>
+  </section>
+
+  <!-- 화면 가득 팝업 -->
+  <div class="popup-overlay" id="popupOverlay" hidden role="alert">
+    <div class="popup-stage" id="popupStage"><div class="popup-text" id="popupText"></div></div>
+    <div class="popup-close">✕ 닫기 · 화면을 누르거나 Esc</div>
+    <div class="popup-bar" id="popupBar"></div>
   </div>
 
   <!-- ===== 공지사항 ===== -->
@@ -616,6 +658,7 @@
   <script src="js/clock.js"></script>
   <script src="js/dday.js"></script>
   <script src="js/notice.js"></script>
+  <script src="js/popup.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/picker.js"></script>
   <script src="js/roulette.js"></script>
