@@ -40,7 +40,9 @@
     ddays: [],
     notices: [],
     picker: {
-      mode: 'student', count: 1, noRepeat: true, effect: true, gender: 'all', pickedIds: [], excludedIds: [], secretIds: [], history: [],
+      mode: 'student', count: 1, noRepeat: true, effect: true, gender: 'all', pickedIds: [], excludedIds: [], secretIds: [],
+      // 뽑힌 기록은 탭(학생/모둠/직접 입력)마다 따로
+      histories: { student: [], group: [], custom: [] },
       groupCount: 5, groupPicked: [], customItems: [], customPicked: [],
     },
     timer: { title: '쉬는 시간', seconds: 300, tick: true, endSound: true },
@@ -76,6 +78,14 @@
 
   // 예전 버전(시간표 하나)을 요일별 시정 구조로 옮김
   function migrate(saved) {
+    // 예전에 하나로 합쳐 저장하던 뽑힌 기록은 학생 뽑기 기록으로 옮김 (레이스 기록은 제외)
+    const pk = saved && saved.picker;
+    if (pk && Array.isArray(pk.history) && !pk.histories) {
+      const old = pk.history.filter((h) => !String(h).includes('🏁'));
+      const isGroup = (h) => /^\d+모둠$/.test(String(h));
+      pk.histories = { student: old.filter((h) => !isGroup(h)), group: old.filter(isGroup), custom: [] };
+      delete pk.history;
+    }
     const sc = saved && saved.schedule;
     if (sc && Array.isArray(sc.periods) && !Array.isArray(sc.profiles)) {
       sc.profiles = [{

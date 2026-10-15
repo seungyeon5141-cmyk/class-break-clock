@@ -460,7 +460,7 @@
       Store.data.picker.pickedIds = [];
       Store.data.picker.excludedIds = [];
       Store.data.picker.secretIds = [];
-      Store.data.picker.history = [];
+      Store.data.picker.histories.student = [];
       studentsChanged();
       toast(`학생 ${list.length}명을 불러왔어요 👩‍🎓`);
     });
@@ -481,7 +481,7 @@
       if (!Store.data.students.length) return;
       if (!await UI.ask('학생 명단을 모두 지울까요?', '모두 지우기')) return;
       Store.data.students = [];
-      Store.data.picker.history = [];
+      Store.data.picker.histories.student = [];
       studentsChanged();
     });
     $('#studentRows').addEventListener('change', (e) => {

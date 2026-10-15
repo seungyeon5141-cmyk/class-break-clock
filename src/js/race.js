@@ -244,10 +244,6 @@
     box.style.setProperty('--win-color', m.color);
     box.hidden = false;
     if (cfg().sound) Sound.fanfare();
-    const title = cfg().title ? `[${cfg().title}] ` : '';
-    Store.data.picker.history.unshift(`${title}🏁 ${m.name}`);
-    Store.data.picker.history = Store.data.picker.history.slice(0, 200);
-    Store.save();
   }
 
   // 카메라가 따라갈 구슬: 지금 당첨 순위 자리에 있는 구슬

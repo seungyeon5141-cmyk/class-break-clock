@@ -85,7 +85,7 @@
     if (document.activeElement !== $('#customItems')) $('#customItems').value = st().customItems.join('\n');
     $('#customCount').textContent = customLines().length;
 
-    const hist = st().history;
+    const hist = historyList();
     $('#pickHistory').innerHTML = hist.length
       ? hist.slice(0, 60).map((h) => `<span>${esc(h)}</span>`).join('')
       : '<small>아직 없어요</small>';
@@ -103,6 +103,19 @@
   }
 
   const historyLabel = (p) => (mode() === 'student' ? label(p) : p.name);
+  // 지금 탭의 뽑힌 기록만
+  function historyList() {
+    if (!st().histories || typeof st().histories !== 'object') st().histories = { student: [], group: [], custom: [] };
+    if (!Array.isArray(st().histories[mode()])) st().histories[mode()] = [];
+    return st().histories[mode()];
+  }
+
+  // 모두 한 번씩 뽑혔을 때 처음부터 다시
+  function restartAll() {
+    round = [];
+    st()[MODES[mode()].picked] = [];
+    Store.save();
+  }
 
   function resetRound() {
     round = [];
@@ -119,15 +132,13 @@
     if (m === 'custom' && !customLines().length) { toast('뽑을 항목을 먼저 입력해 주세요'); $('#customItems').focus(); return; }
     const inRound = new Set(round.map((w) => w.id));
     let candidates = pool().filter((p) => !inRound.has(p.id));
-    if (cont && !candidates.length) { toast('이번 판에서 모두 뽑혔어요. 🎲 뽑기로 새로 시작하세요'); return; }
-    if (!candidates.length) {
-      if (st().noRepeat && pickedList().length && await UI.ask(`모두 한 번씩 뽑혔어요. 처음부터 다시 뽑을까요?`, '다시 뽑기')) {
-        st()[MODES[m].picked] = [];
-        Store.save();
-        candidates = pool();
-      }
-      if (!candidates.length) { toast(MODES[m].empty); renderSide(); return; }
+    // 모두 한 번씩 뽑혔으면 처음부터 다시 뽑음
+    if (!candidates.length && (round.length || pickedList().length)) {
+      restartAll();
+      candidates = pool();
+      if (candidates.length) toast('🔄 모두 한 번씩 뽑혀서 처음부터 다시 뽑아요');
     }
+    if (!candidates.length) { toast(MODES[m].empty); renderSide(); return; }
 
     const count = Math.min(st().count, candidates.length);
     if (count < st().count) toast(`남은 후보가 ${candidates.length}${MODES[m].unit === '명' ? '명' : '개'}이라 ${count}${MODES[m].unit}만 뽑아요`);
@@ -179,14 +190,20 @@
     const picked = pickedList();
     winners.forEach((w) => {
       if (!picked.includes(w.id)) picked.push(w.id);
-      st().history.unshift(historyLabel(w));
+      historyList().unshift(historyLabel(w));
     });
-    st().history = st().history.slice(0, 200);
+    st().histories[m] = historyList().slice(0, 200);
     Store.save();
     rolling = false;
     $('#pickGo').disabled = false;
     $('#pickContinue').disabled = false;
     $('#pickContinue').hidden = false;
+    // 이번에 마지막 후보까지 뽑았으면 '처음부터 다시' 안내
+    const doneIds = new Set(round.map((w) => w.id));
+    const allDone = !pool().some((p) => !doneIds.has(p.id));
+    $('#pickContinue').textContent = allDone ? '🔄 처음부터 다시 뽑기' : '➕ 이어서 뽑기';
+    $('#pickContinue').classList.toggle('restart', allDone);
+    if (allDone) stage.insertAdjacentHTML('beforeend', '<div class="all-done">🎉 모두 한 번씩 뽑혔어요! <b>처음부터 다시 뽑기</b>를 누르면 새로 시작해요</div>');
     renderSide();
   }
 
@@ -271,16 +288,16 @@
       Store.save();
       renderSide();
     });
+    // 초기화는 지금 탭의 기록만
     $('#pickReset').addEventListener('click', () => {
-      st().pickedIds = [];
-      st().groupPicked = [];
-      st().customPicked = [];
-      st().history = [];
+      st()[MODES[mode()].picked] = [];
+      st().histories[mode()] = [];
       Store.save();
       resetRound();
       $('#pickerStage').innerHTML = '<div class="picker-empty">뽑기 버튼을 눌러 주세요 ✨</div>';
       renderSide();
-      toast('뽑힌 기록을 초기화했어요');
+      const names = { student: '학생 뽑기', group: '모둠 선출', custom: '직접 입력 선출' };
+      toast(`${names[mode()]} 기록을 초기화했어요`);
     });
     $('#pickerGender').addEventListener('click', (e) => {
       const b = e.target.closest('[data-gender]');

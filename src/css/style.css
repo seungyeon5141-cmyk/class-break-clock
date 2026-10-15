@@ -1087,3 +1087,7 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .panel .ph-ico { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: rgba(255, 255, 255, 0.75); box-shadow: inset 0 0 0 2px var(--lav-200); }
 .panel-head h2 { color: var(--ink); }
 .panel .btn-primary { box-shadow: 0 8px 20px color-mix(in srgb, var(--lav-400) 40%, transparent); }
+
+.btn-continue.restart { color: #fff; background: var(--grad); border-color: transparent; }
+.all-done { width: 100%; text-align: center; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.85); font-weight: 700; font-size: 16px; color: var(--ink); }
+.all-done b { color: var(--lav-500); }
