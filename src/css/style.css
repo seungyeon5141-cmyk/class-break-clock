@@ -65,6 +65,50 @@
   font-display: block;
 }
 
+/* 카페24 무료 글꼴 (SIL OFL 1.1, 라이선스: fonts/licenses) — 포스트잇용 */
+@font-face {
+  font-family: 'Cafe24 Danjunghae';
+  src: url('../fonts/Cafe24Danjunghae.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 Dangdanghae';
+  src: url('../fonts/Cafe24Dangdanghae.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 Ohsquare';
+  src: url('../fonts/Cafe24Ohsquare.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 Ssurround';
+  src: url('../fonts/Cafe24Ssurround.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 SsurroundAir';
+  src: url('../fonts/Cafe24SsurroundAir.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 Supermagic';
+  src: url('../fonts/Cafe24Supermagic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cafe24 Supermagic';
+  src: url('../fonts/Cafe24Supermagic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   --lav-50: #faf6ff;
   --lav-100: #f1e8ff;
@@ -401,6 +445,21 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .fc-paperlogy { font-family: var(--font-main); }
 .fc-pretendard { font-family: var(--font-ui); font-weight: 700; }
 .fc-ownglyph { font-family: var(--font-small); font-size: 21px !important; }
+.fc-danjunghae { font-family: 'Cafe24 Danjunghae', var(--font-ui); }
+.fc-dangdanghae { font-family: 'Cafe24 Dangdanghae', var(--font-ui); }
+.fc-anemone { font-family: 'Cafe24 Ohsquare', var(--font-ui); }
+.fc-ssurround { font-family: 'Cafe24 Ssurround', var(--font-ui); }
+.fc-ssurroundair { font-family: 'Cafe24 SsurroundAir', var(--font-ui); }
+.fc-supermagic { font-family: 'Cafe24 Supermagic', var(--font-ui); font-weight: 700; }
+.postit-resize {
+  position: absolute; right: 2px; bottom: 2px; width: 26px; height: 26px; cursor: nwse-resize;
+  opacity: 0; transition: opacity 0.15s; border-radius: 0 0 18px 0;
+  background: linear-gradient(135deg, transparent 0 45%, rgba(75, 59, 99, 0.35) 45% 52%, transparent 52% 62%, rgba(75, 59, 99, 0.35) 62% 69%, transparent 69%);
+}
+.postit.on-board:hover .postit-resize, .postit.on-board.resizing .postit-resize { opacity: 1; }
+.postit.on-board.sized { max-width: none; overflow: hidden; display: flex; flex-direction: column; }
+.postit.on-board.sized .postit-text { flex: 1; min-height: 0; }
+.postit.on-board.resizing { transform: rotate(0deg); z-index: 5; outline: 2px dashed var(--lav-400); outline-offset: 4px; }
 .weight-row { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; margin-top: 4px; }
 .weight-row input { flex: 1; max-width: 300px; accent-color: var(--lav-500); }
 .weight-row b { min-width: 120px; font-variant-numeric: tabular-nums; }
@@ -834,6 +893,29 @@ body.warning .status-chip { background: #ffe1e7; color: #d62d4f; }
 .sched-table .muted { color: var(--ink-soft); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .sched-table .muted.lunch { color: #e58a00; }
 .sched-table .muted.bad { color: var(--red); }
+.profile-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.profile-tab {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 10px 16px; border-radius: 16px; background: var(--lav-50); border: 2px solid var(--lav-100); text-align: left;
+}
+.profile-tab b { font-size: 15px; font-weight: 800; }
+.profile-tab small { font-size: 12px; }
+.profile-tab.active { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(244, 123, 182, 0.28); }
+.profile-tab.active small { color: rgba(255, 255, 255, 0.9); }
+.profile-tab.add { justify-content: center; font-weight: 800; color: var(--lav-500); border-style: dashed; background: #fff; }
+.profile-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 12px 16px; border-radius: var(--r-md); background: var(--lav-50); border: 2px solid var(--lav-100); margin-bottom: 8px; }
+.profile-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.profile-name input { width: 150px; }
+.profile-days-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px; }
+.pd-label { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.day-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.day-chip { width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 2px solid var(--lav-100); font-weight: 800; font-size: 15px; color: var(--ink-soft); }
+.day-chip.sun { color: #e0577a; }
+.day-chip.sat { color: #4a7fe0; }
+.day-chip.taken { background: repeating-linear-gradient(135deg, #fff 0 5px, var(--lav-50) 5px 10px); opacity: 0.75; }
+.day-chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.day-chip:hover { border-color: var(--lav-400); }
+.tl-item.tl-profile { background: rgba(255, 255, 255, 0.85); }
 .move-cell { white-space: nowrap; width: 1%; }
 .drag-handle { cursor: grab; color: var(--ink-faint); font-size: 18px; padding: 0 4px; vertical-align: middle; }
 .drag-handle:hover { color: var(--lav-500); }

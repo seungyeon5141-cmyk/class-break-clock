@@ -11,9 +11,53 @@
   const fromSec = (s) => `${pad(Math.floor(s / 3600) % 24)}:${pad(Math.floor((s % 3600) / 60))}`;
 
   const isLunch = (p) => p.type === 'lunch';
+  const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+  const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const profiles = () => Store.data.schedule.profiles;
+  let editId = null;
+
+  // 지금 고치고 있는 시정 (처음에는 오늘 쓰는 시정)
+  function prof() {
+    let p = profiles().find((x) => x.id === editId);
+    if (!p) {
+      p = Clock.profileFor(new Date()) || profiles()[0];
+      if (!p) {
+        p = { id: Store.uid(), name: '기본 시정', days: [1, 2, 3, 4, 5], periods: [] };
+        profiles().push(p);
+      }
+      editId = p.id;
+    }
+    return p;
+  }
+
+  const daysText = (days) => {
+    const d = DAY_ORDER.filter((x) => (days || []).includes(x));
+    if (!d.length) return '요일 없음';
+    if (d.join() === '1,2,3,4,5') return '월~금';
+    if (d.length === 7) return '매일';
+    return d.map((x) => DAY_NAMES[x]).join('·');
+  };
+
+  function renderProfiles() {
+    const cur = prof();
+    $('#profileTabs').innerHTML = profiles().map((p) =>
+      `<button class="profile-tab${p.id === cur.id ? ' active' : ''}" data-pid="${esc(p.id)}" role="tab" aria-selected="${p.id === cur.id}">
+        <b>${esc(p.name)}</b><small>${esc(daysText(p.days))}</small></button>`).join('') +
+      '<button class="profile-tab add" id="profileAdd" title="요일별 시정 추가">＋ 시정 추가</button>';
+    if (document.activeElement !== $('#profileName')) $('#profileName').value = cur.name;
+    $('#profileDays').innerHTML = DAY_ORDER.map((d) => {
+      const owner = profiles().find((p) => (p.days || []).includes(d));
+      const on = owner && owner.id === cur.id;
+      const other = owner && !on ? ` title="지금은 '${esc(owner.name)}'에 있어요. 누르면 이쪽으로 옮겨 와요"` : '';
+      return `<button class="day-chip${on ? ' on' : ''}${owner && !on ? ' taken' : ''}${d === 0 ? ' sun' : d === 6 ? ' sat' : ''}" data-day="${d}" aria-pressed="${!!on}"${other}>${DAY_NAMES[d]}</button>`;
+    }).join('');
+    $('#profileDelete').hidden = profiles().length < 2;
+    $('#profileTitle').textContent = `· ${cur.name} (${daysText(cur.days)})`;
+  }
 
   function renderSchedule() {
-    const rows = Store.data.schedule.periods;
+    renderProfiles();
+    const rows = prof().periods;
     const toSec = Clock.toSec;
     const sorted = rows.map((p) => ({ id: p.id, type: p.type, s: toSec(p.start), e: toSec(p.end) }))
       .filter((p) => p.s !== null && p.e !== null).sort((a, b) => a.s - b.s);
@@ -49,7 +93,6 @@
         <td><button class="del-btn" data-del title="삭제">✕</button></td>
       </tr>`;
     }).join('') || '<tr><td colspan="8" class="muted" style="padding:16px">교시를 추가해 주세요</td></tr>';
-    $('#skipWeekend').checked = Store.data.schedule.skipWeekend;
     $('#schedAutoTime').checked = Store.data.schedule.autoRetime !== false;
   }
 
@@ -88,7 +131,7 @@
   }
 
   function moveRow(from, to) {
-    const rows = Store.data.schedule.periods;
+    const rows = prof().periods;
     if (to < 0 || to >= rows.length || from === to) return;
     const before = rows.map((p) => ({ ...p }));
     const [row] = rows.splice(from, 1);
@@ -104,7 +147,7 @@
       const tr = e.target.closest('tr[data-id]');
       const f = e.target.dataset.f;
       if (!tr || !f) return;
-      const p = Store.data.schedule.periods.find((x) => x.id === tr.dataset.id);
+      const p = prof().periods.find((x) => x.id === tr.dataset.id);
       if (!p) return;
       p[f] = e.target.value.trim();
       if (f === 'type' && p.type === 'lunch' && /교시$/.test(p.name)) p.name = '점심 시간';
@@ -113,12 +156,12 @@
     $('#schedRows').addEventListener('click', (e) => {
       const tr = e.target.closest('tr[data-id]');
       if (!tr) return;
-      const rows = Store.data.schedule.periods;
+      const rows = prof().periods;
       const idx = rows.findIndex((p) => p.id === tr.dataset.id);
       const mv = e.target.closest('[data-move]');
       if (mv) { moveRow(idx, idx + Number(mv.dataset.move)); return; }
       if (!e.target.closest('[data-del]')) return;
-      Store.data.schedule.periods = rows.filter((p) => p.id !== tr.dataset.id);
+      prof().periods = rows.filter((p) => p.id !== tr.dataset.id);
       scheduleChanged();
     });
 
@@ -150,7 +193,7 @@
       e.preventDefault();
       const tr = e.target.closest('tr[data-id]');
       if (!dragId || !tr || tr.dataset.id === dragId) return;
-      const rows = Store.data.schedule.periods;
+      const rows = prof().periods;
       const from = rows.findIndex((p) => p.id === dragId);
       let to = rows.findIndex((p) => p.id === tr.dataset.id);
       const r = tr.getBoundingClientRect();
@@ -164,24 +207,77 @@
     });
 
     $('#schedAdd').addEventListener('click', () => {
-      const list = Clock.periods();
+      const list = Clock.periods(prof());
       const last = list[list.length - 1];
       const s = last ? last.e + 600 : 9 * 3600;
-      const n = Store.data.schedule.periods.filter((p) => !isLunch(p)).length + 1;
-      Store.data.schedule.periods.push({ id: Store.uid(), name: `${n}교시`, type: 'class', start: fromSec(s), end: fromSec(s + 2400) });
+      const n = prof().periods.filter((p) => !isLunch(p)).length + 1;
+      prof().periods.push({ id: Store.uid(), name: `${n}교시`, type: 'class', start: fromSec(s), end: fromSec(s + 2400) });
       scheduleChanged();
     });
     $('#schedAddLunch').addEventListener('click', () => {
-      if (Store.data.schedule.periods.some(isLunch)) { toast('점심 줄이 이미 있어요. 종류를 바꾸거나 시간을 고쳐 주세요'); return; }
-      Store.data.schedule.periods.push({ id: Store.uid(), name: '점심 시간', type: 'lunch', start: '12:10', end: '13:00' });
+      if (prof().periods.some(isLunch)) { toast('점심 줄이 이미 있어요. 종류를 바꾸거나 시간을 고쳐 주세요'); return; }
+      prof().periods.push({ id: Store.uid(), name: '점심 시간', type: 'lunch', start: '12:10', end: '13:00' });
       scheduleChanged();
       toast('점심 줄을 추가했어요. ⠿로 원하는 자리에 옮기세요');
     });
     $('#schedSort').addEventListener('click', () => {
-      Store.data.schedule.periods.sort((a, b) => (Clock.toSec(a.start) ?? 1e9) - (Clock.toSec(b.start) ?? 1e9));
+      prof().periods.sort((a, b) => (Clock.toSec(a.start) ?? 1e9) - (Clock.toSec(b.start) ?? 1e9));
       scheduleChanged();
     });
-    $('#skipWeekend').addEventListener('change', (e) => { Store.data.schedule.skipWeekend = e.target.checked; scheduleChanged(false); });
+    // 시정 탭·요일·이름·추가·삭제
+    $('#profileTabs').addEventListener('click', async (e) => {
+      if (e.target.closest('#profileAdd')) {
+        const base = prof();
+        const copy = await UI.ask(`'${base.name}' 시간표를 복사해서 새 시정을 만들까요?\n(취소하면 빈 시간표로 만들어요)`, '복사해서 만들기');
+        const p = {
+          id: Store.uid(),
+          name: '새 시정',
+          autoName: true,
+          days: [],
+          periods: copy ? base.periods.map((x) => ({ ...x, id: Store.uid() })) : [],
+        };
+        profiles().push(p);
+        editId = p.id;
+        scheduleChanged();
+        toast('새 시정을 만들었어요. 쓸 요일을 눌러 주세요');
+        return;
+      }
+      const b = e.target.closest('[data-pid]');
+      if (b) { editId = b.dataset.pid; renderSchedule(); }
+    });
+    $('#profileDays').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-day]');
+      if (!b) return;
+      const d = Number(b.dataset.day);
+      const cur = prof();
+      if ((cur.days || []).includes(d)) {
+        cur.days = cur.days.filter((x) => x !== d);
+      } else {
+        profiles().forEach((p) => { p.days = (p.days || []).filter((x) => x !== d); });
+        cur.days = [...(cur.days || []), d].sort();
+      }
+      // 이름을 직접 바꾸지 않은 새 시정은 고른 요일로 이름을 지어 줌 (예: 수요일 시정)
+      if (cur.autoName) {
+        const picked = DAY_ORDER.filter((x) => cur.days.includes(x));
+        cur.name = !picked.length ? '새 시정' : picked.length === 1 ? `${DAY_NAMES[picked[0]]}요일 시정` : `${daysText(picked)} 시정`;
+      }
+      scheduleChanged();
+    });
+    $('#profileName').addEventListener('input', (e) => {
+      prof().name = e.target.value.trim() || '시정';
+      prof().autoName = false;
+      Store.save();
+      renderProfiles();
+      Clock.refresh();
+    });
+    $('#profileDelete').addEventListener('click', async () => {
+      if (profiles().length < 2) return;
+      const cur = prof();
+      if (!await UI.ask(`'${cur.name}' 시정을 삭제할까요?\n이 시정의 요일(${daysText(cur.days)})은 종이 울리지 않게 돼요.`, '삭제')) return;
+      Store.data.schedule.profiles = profiles().filter((p) => p.id !== cur.id);
+      editId = null;
+      scheduleChanged();
+    });
     $('#schedAutoTime').addEventListener('change', (e) => { Store.data.schedule.autoRetime = e.target.checked; Store.save(); });
     $('#genApply').addEventListener('click', async () => {
       const start = Clock.toSec($('#genStart').value);
@@ -203,7 +299,7 @@
         } else t += brk;
       }
       if (t > 24 * 3600) { toast('하루를 넘어가요. 값을 줄여 주세요'); return; }
-      Store.data.schedule.periods = periods;
+      prof().periods = periods;
       scheduleChanged();
       toast('시간표를 만들었어요 🕘');
     });

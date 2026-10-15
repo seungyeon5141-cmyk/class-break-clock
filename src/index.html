@@ -306,11 +306,11 @@
         <button class="ph-btn" data-close title="닫기">✕</button>
       </div>
     </header>
-    <div class="panel-notice">💡 <b>화면에서 보기</b>를 켠 공지는 메인 화면에 포스트잇으로 붙어요. 포스트잇은 <b>끌어서 옮기고</b>, <b>두 번 눌러 수정</b>할 수 있어요.</div>
+    <div class="panel-notice">💡 <b>화면에서 보기</b>를 켠 공지는 메인 화면에 포스트잇으로 붙어요. 포스트잇은 <b>끌어서 옮기고</b>, <b>오른쪽 아래 모서리로 크기를 바꾸고</b>, <b>두 번 눌러 수정</b>할 수 있어요.</div>
     <div class="panel-body">
       <div class="dday-list-head">
         <span><b id="noticeCount">0</b>/20</span>
-        <button class="link-btn" id="noticeResetPos">위치 처음으로</button>
+        <button class="link-btn" id="noticeResetPos">위치·크기 처음으로</button>
       </div>
       <div class="notice-list" id="noticeList"></div>
       <button class="fab" id="noticeAdd" title="공지 새로 쓰기" aria-label="공지 새로 쓰기">＋</button>
@@ -348,7 +348,14 @@
         <button data-font="paperlogy" class="fc-paperlogy">페이퍼로지</button>
         <button data-font="pretendard" class="fc-pretendard">프리텐다드</button>
         <button data-font="ownglyph" class="fc-ownglyph">온글잎 의연체</button>
+        <button data-font="danjunghae" class="fc-danjunghae">카페24 단정해</button>
+        <button data-font="dangdanghae" class="fc-dangdanghae">카페24 당당해</button>
+        <button data-font="anemone" class="fc-anemone">카페24 아네모네</button>
+        <button data-font="ssurround" class="fc-ssurround">카페24 써라운드</button>
+        <button data-font="ssurroundair" class="fc-ssurroundair">카페24 써라운드 에어</button>
+        <button data-font="supermagic" class="fc-supermagic">카페24 슈퍼매직</button>
       </div>
+      <label class="check" id="noticeBoldRow"><input type="checkbox" id="noticeBold" /> <span>굵게 (Bold)</span></label>
       <div class="weight-row" id="noticeWeightRow">
         <span>굵기</span>
         <input type="range" id="noticeWeight" min="100" max="900" step="100" aria-label="프리텐다드 굵기" />
@@ -356,6 +363,8 @@
       </div>
       <h4>글자 크기 <b id="noticeSizeVal"></b></h4>
       <div class="volume-row">가 <input type="range" id="noticeSize" min="16" max="96" step="2" /> <span class="big-ga">가</span></div>
+      <label class="check"><input type="checkbox" id="noticeFit" /> <span>포스트잇 크기를 바꾸면 글자 크기도 맞춰서 자동 조절</span></label>
+      <p class="mini-help">메인 화면에서 포스트잇 오른쪽 아래 모서리를 끌면 크기를 마음대로 바꿀 수 있어요.</p>
       <div class="modal-actions">
         <button class="btn btn-ghost" data-modal-close>취소</button>
         <button class="btn btn-primary" id="noticeSave">붙이기</button>
@@ -478,7 +487,18 @@
       <div class="settings-content">
         <!-- 시간표 -->
         <section class="stab" data-stab-panel="schedule">
-          <h3>수업 시간표</h3>
+          <h3>요일별 시정</h3>
+          <div class="profile-tabs" id="profileTabs" role="tablist"></div>
+          <div class="profile-edit">
+            <label class="profile-name">시정 이름 <input class="field sm" id="profileName" maxlength="12" /></label>
+            <div class="profile-days-wrap">
+              <span class="pd-label">쓰는 요일</span>
+              <div class="day-chips" id="profileDays" role="group" aria-label="이 시정을 쓰는 요일"></div>
+            </div>
+            <button class="btn btn-danger-soft" id="profileDelete">이 시정 삭제</button>
+          </div>
+          <p class="mini-help">요일을 눌러 이 시정을 쓸 요일을 고르세요. <b>같은 시정인 요일은 한 번만</b> 입력하면 돼요. 다른 시정에 있던 요일을 누르면 이쪽으로 옮겨 와요. 어느 시정에도 없는 요일에는 종이 울리지 않아요.</p>
+          <h3>수업 시간표 <small id="profileTitle"></small></h3>
           <p class="mini-help">교시 시작·끝 시간을 넣으면 사이 시간은 자동으로 <b>쉬는 시간</b>이 돼요. 종류를 <b>점심</b>으로 바꾸면 종 없이 점심 시간으로 표시해요. ⠿를 끌거나 ▲▼로 순서를 옮길 수 있어요.</p>
           <div class="sched-table-wrap">
             <table class="sched-table">
@@ -504,7 +524,6 @@
             </div>
             <button class="btn btn-primary" id="genApply">이대로 만들기</button>
           </details>
-          <label class="check"><input type="checkbox" id="skipWeekend" /> <span>토·일요일에는 종을 울리지 않기</span></label>
         </section>
 
         <!-- 알림·소리 -->

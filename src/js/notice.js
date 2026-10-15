@@ -38,7 +38,15 @@
     paperlogy: 'var(--font-main)',
     pretendard: 'var(--font-ui)',
     ownglyph: 'var(--font-small)',
+    danjunghae: "'Cafe24 Danjunghae', var(--font-ui)",
+    dangdanghae: "'Cafe24 Dangdanghae', var(--font-ui)",
+    anemone: "'Cafe24 Ohsquare', var(--font-ui)",
+    ssurround: "'Cafe24 Ssurround', var(--font-ui)",
+    ssurroundair: "'Cafe24 SsurroundAir', var(--font-ui)",
+    supermagic: "'Cafe24 Supermagic', var(--font-ui)",
   };
+  const MIN_W = 140;
+  const MIN_H = 80;
   const WEIGHT_NAMES = { 100: 'Thin', 200: 'ExtraLight', 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold', 800: 'ExtraBold', 900: 'Black' };
 
   // 예전 버전에서 만든 공지도 새 옵션으로 읽기
@@ -60,7 +68,7 @@
 
   function postitStyle(raw) {
     const n = normalize(raw);
-    const weight = n.font === 'pretendard' ? Number(n.weight) || 700 : 'normal';
+    const weight = n.font === 'pretendard' ? Number(n.weight) || 700 : n.font === 'supermagic' ? (n.bold ? 700 : 400) : 'normal';
     return `--pi-bg:${esc(n.bg)};--pi-fg:${esc(n.fg)};--pi-size:${Number(n.size) || 32}px;--pi-font:${FONTS[n.font]};--pi-weight:${weight};--pi-tilt:${tilt(n.id || 'x')}deg`;
   }
 
@@ -87,9 +95,13 @@
   function renderBoard() {
     const layer = $('#noticeLayer');
     const shown = notices().filter((n) => n.show && n.text.trim());
-    layer.innerHTML = shown.map((n) =>
-      `<div class="postit on-board" data-id="${esc(n.id)}" style="${postitStyle(n)}" title="끌어서 옮기기 · 두 번 눌러 수정">${postitInner(n)}</div>`).join('');
+    layer.innerHTML = shown.map((n) => {
+      const sized = n.w && n.h;
+      const size = sized ? `;width:${Number(n.w)}px;height:${Number(n.h)}px` : '';
+      return `<div class="postit on-board${sized ? ' sized' : ''}" data-id="${esc(n.id)}" style="${postitStyle(n)}${size}" title="끌어서 옮기기 · 모서리로 크기 조절 · 두 번 눌러 수정">${postitInner(n)}<span class="postit-resize" aria-hidden="true"></span></div>`;
+    }).join('');
     layout();
+    $$('.postit.on-board.sized', layer).forEach(fitText);
     updateBodyClass();
   }
 
@@ -124,13 +136,35 @@
     });
   }
 
+  // '크기에 맞춰 글자 자동 조절'을 켠 포스트잇: 넘치지 않는 가장 큰 글자 크기를 찾음
+  function fitText(el) {
+    const n = notices().find((x) => x.id === el.dataset.id);
+    if (!n || !n.fit) return;
+    const box = el.querySelector('.postit-text');
+    let lo = 12;
+    let hi = 200;
+    while (hi - lo > 1) {
+      const mid = Math.floor((lo + hi) / 2);
+      el.style.setProperty('--pi-size', `${mid}px`);
+      if (box.scrollHeight <= box.clientHeight + 1 && box.scrollWidth <= box.clientWidth + 1) lo = mid; else hi = mid;
+    }
+    el.style.setProperty('--pi-size', `${lo}px`);
+  }
+
   function initDrag() {
     const layer = $('#noticeLayer');
     let drag = null;
     layer.addEventListener('pointerdown', (e) => {
       const el = e.target.closest('.postit.on-board');
       if (!el || e.button !== 0) return;
-      drag = { el, sx: e.clientX, sy: e.clientY, left: el.offsetLeft, top: el.offsetTop, moved: false };
+      const resize = !!e.target.closest('.postit-resize');
+      drag = { el, resize, sx: e.clientX, sy: e.clientY, left: el.offsetLeft, top: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, moved: false };
+      if (resize) {
+        e.preventDefault();
+        el.classList.add('resizing', 'sized');
+        el.style.width = `${drag.w}px`;
+        el.style.height = `${drag.h}px`;
+      }
       el.setPointerCapture(e.pointerId);
     });
     layer.addEventListener('pointermove', (e) => {
@@ -139,20 +173,30 @@
       const dy = e.clientY - drag.sy;
       if (!drag.moved && Math.hypot(dx, dy) < 4) return;
       drag.moved = true;
-      drag.el.classList.add('dragging');
       const W = layer.clientWidth;
       const H = layer.clientHeight;
+      if (drag.resize) {
+        drag.el.style.width = `${Math.max(MIN_W, Math.min(W - drag.left, drag.w + dx))}px`;
+        drag.el.style.height = `${Math.max(MIN_H, Math.min(H - drag.top, drag.h + dy))}px`;
+        fitText(drag.el);
+        return;
+      }
+      drag.el.classList.add('dragging');
       drag.el.style.left = `${Math.max(0, Math.min(W - drag.el.offsetWidth, drag.left + dx))}px`;
       drag.el.style.top = `${Math.max(0, Math.min(H - 60, drag.top + dy))}px`;
     });
     const end = () => {
       if (!drag) return;
-      const { el, moved } = drag;
+      const { el, moved, resize } = drag;
       drag = null;
-      el.classList.remove('dragging');
+      el.classList.remove('dragging', 'resizing');
       if (!moved) return;
       const n = notices().find((x) => x.id === el.dataset.id);
-      if (n) {
+      if (n && resize) {
+        n.w = el.offsetWidth;
+        n.h = el.offsetHeight;
+        Store.save();
+      } else if (n) {
         n.x = el.offsetLeft / layer.clientWidth;
         n.y = el.offsetTop / layer.clientHeight;
         Store.save();
@@ -161,6 +205,7 @@
     layer.addEventListener('pointerup', end);
     layer.addEventListener('pointercancel', end);
     layer.addEventListener('dblclick', (e) => {
+      if (e.target.closest('.postit-resize')) return;
       const el = e.target.closest('.postit.on-board');
       if (el) openModal(el.dataset.id);
     });
@@ -211,6 +256,9 @@
     $('#noticeSizeVal').textContent = `${draft.size}px`;
     $('#noticeWeightVal').textContent = `${draft.weight} ${WEIGHT_NAMES[draft.weight] || ''}`;
     $('#noticeWeightRow').hidden = draft.font !== 'pretendard';
+    $('#noticeBoldRow').hidden = draft.font !== 'supermagic';
+    draft.bold = $('#noticeBold').checked;
+    draft.fit = $('#noticeFit').checked;
     $$('#noticeAlign [data-align]').forEach((b) => b.classList.toggle('active', b.dataset.align === draft.align));
     $$('#noticeBullets [data-bullet]').forEach((b) => b.classList.toggle('active', b.dataset.bullet === draft.bullet));
     $$('#noticeFonts [data-font]').forEach((b) => b.classList.toggle('active', b.dataset.font === draft.font));
@@ -228,6 +276,8 @@
     $('#noticeText').value = draft.text;
     $('#noticeSize').value = draft.size;
     $('#noticeWeight').value = draft.weight;
+    $('#noticeBold').checked = !!draft.bold;
+    $('#noticeFit').checked = !!draft.fit;
     swatches();
     $('#noticeModal').hidden = false;
     preview();
@@ -256,6 +306,8 @@
     $('#noticeText').addEventListener('input', preview);
     $('#noticeSize').addEventListener('input', preview);
     $('#noticeWeight').addEventListener('input', preview);
+    $('#noticeBold').addEventListener('change', preview);
+    $('#noticeFit').addEventListener('change', preview);
     $('#noticeBullets').innerHTML = BULLETS.map((b) =>
       `<button data-bullet="${esc(b.v)}" title="${b.v === 'none' ? '글머리 기호 없음' : `글머리 기호 ${esc(b.label)}`}">${esc(b.label)}</button>`).join('');
     $('#noticeAlign').addEventListener('click', (e) => {
@@ -315,9 +367,9 @@
       if (n) { n.show = e.target.checked; Store.save(); renderBoard(); }
     });
     $('#noticeResetPos').addEventListener('click', () => {
-      notices().forEach((n) => { delete n.x; delete n.y; });
+      notices().forEach((n) => { delete n.x; delete n.y; delete n.w; delete n.h; });
       Store.save(); renderBoard();
-      toast('포스트잇을 오른쪽 위로 다시 모았어요');
+      toast('포스트잇 위치와 크기를 처음대로 돌렸어요');
     });
 
     initDrag();

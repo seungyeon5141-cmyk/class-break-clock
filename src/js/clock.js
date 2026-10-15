@@ -10,17 +10,25 @@
     return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 : null;
   };
 
+  // 그 날짜의 요일에 쓰는 시정 (없으면 null → 그날은 종 없음)
+  function profileFor(date) {
+    const day = (date || new Date()).getDay();
+    return Store.data.schedule.profiles.find((p) => (p.days || []).includes(day)) || null;
+  }
+
   // 올바른 교시만 시작 시각 순서로. type: 'class'(수업) | 'lunch'(점심)
-  function periods() {
-    return Store.data.schedule.periods
+  // 인자: 시정 객체(설정 화면) 또는 날짜(그날의 시정)
+  function periods(arg) {
+    const prof = arg && Array.isArray(arg.periods) ? arg : profileFor(arg instanceof Date ? arg : new Date());
+    return (prof ? prof.periods : [])
       .map((p) => ({ ...p, type: p.type === 'lunch' ? 'lunch' : 'class', s: toSec(p.start), e: toSec(p.end) }))
       .filter((p) => p.s !== null && p.e !== null && p.e > p.s)
       .sort((a, b) => a.s - b.s);
   }
 
+  // 오늘 쓰는 시정이 없는 날(주말 등)은 종을 울리지 않음
   function isWeekendOff(date) {
-    const d = date.getDay();
-    return Store.data.schedule.skipWeekend && (d === 0 || d === 6);
+    return !profileFor(date);
   }
 
   // 지금이 수업/쉬는 시간/점심/등교 전/방과 후 중 어디인지
@@ -112,7 +120,7 @@
 
   function render(now) {
     const sec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    const list = periods();
+    const list = periods(now);
     checkEvents(now, sec, list);
 
     const weekendOff = isWeekendOff(now);
@@ -152,7 +160,8 @@
         chip = warning ? `⏰ 곧 ${esc(st.next.name)} 시작!<span class="sc-sub">수업 시작까지</span>`
           : `🌤️ 좋은 아침이에요<span class="sc-sub">${esc(st.next.name)} ${esc(st.next.start)} 시작</span>`; break;
       case 'after': chip = '🎒 오늘 수업 끝! 수고했어요'; break;
-      case 'weekend': chip = '🌈 즐거운 주말이에요'; break;
+      case 'weekend':
+        chip = now.getDay() === 0 || now.getDay() === 6 ? '🌈 즐거운 주말이에요' : '📅 오늘은 정해진 시정이 없어요'; break;
       default: chip = '⚙️ 설정에서 시간표를 입력해 주세요';
     }
     $('#statusChip').innerHTML = chip;
@@ -160,10 +169,12 @@
     // 시간표 줄은 바뀔 때만 다시 그림
     const curId = st.period ? st.period.id : '';
     const nextId = st.next ? st.next.id : '';
-    const key = JSON.stringify([list.map((p) => [p.id, p.type, p.name, p.start, p.end, p.e <= sec]), curId, nextId, weekendOff]);
+    const prof = profileFor(now);
+    const showProfile = prof && Store.data.schedule.profiles.length > 1;
+    const key = JSON.stringify([list.map((p) => [p.id, p.type, p.name, p.start, p.end, p.e <= sec]), curId, nextId, weekendOff, showProfile && prof.name]);
     if (key !== lastRenderKey) {
       lastRenderKey = key;
-      $('#timeline').innerHTML = list.map((p) => {
+      $('#timeline').innerHTML = (showProfile ? `<div class="tl-item tl-profile"><b>📅 ${esc(prof.name)}</b></div>` : '') + list.map((p) => {
         const cls = p.id === curId ? 'now' : (p.e <= sec ? 'done' : '');
         const lunch = p.type === 'lunch' ? ' lunch' : '';
         return `<div class="tl-item ${cls}${lunch}"><b>${p.type === 'lunch' ? '🍱 ' : ''}${esc(p.name)}</b>${esc(p.start)}~${esc(p.end)}</div>`;
@@ -183,5 +194,5 @@
     loop();
   }
 
-  window.Clock = { start, refresh: () => { lastRenderKey = ''; render(new Date()); }, statusAt, toSec, periods, fmtRemain };
+  window.Clock = { start, refresh: () => { lastRenderKey = ''; render(new Date()); }, statusAt, toSec, periods, profileFor, fmtRemain };
 })();

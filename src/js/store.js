@@ -3,17 +3,24 @@
   const KEY = 'class-break-clock:v1';
 
   const DEFAULTS = {
+    // 시정(요일별 시간표). 요일 0=일 … 6=토. 한 요일은 한 시정에만 속함
     schedule: {
-      periods: [
-        { id: 'p1', name: '1교시', start: '09:00', end: '09:40' },
-        { id: 'p2', name: '2교시', start: '09:50', end: '10:30' },
-        { id: 'p3', name: '3교시', start: '10:40', end: '11:20' },
-        { id: 'p4', name: '4교시', start: '11:30', end: '12:10' },
-        { id: 'lunch', name: '점심 시간', start: '12:10', end: '13:00', type: 'lunch' },
-        { id: 'p5', name: '5교시', start: '13:00', end: '13:40' },
-        { id: 'p6', name: '6교시', start: '13:50', end: '14:30' },
+      profiles: [
+        {
+          id: 'default',
+          name: '기본 시정',
+          days: [1, 2, 3, 4, 5],
+          periods: [
+            { id: 'p1', name: '1교시', start: '09:00', end: '09:40' },
+            { id: 'p2', name: '2교시', start: '09:50', end: '10:30' },
+            { id: 'p3', name: '3교시', start: '10:40', end: '11:20' },
+            { id: 'p4', name: '4교시', start: '11:30', end: '12:10' },
+            { id: 'lunch', name: '점심 시간', start: '12:10', end: '13:00', type: 'lunch' },
+            { id: 'p5', name: '5교시', start: '13:00', end: '13:40' },
+            { id: 'p6', name: '6교시', start: '13:50', end: '14:30' },
+          ],
+        },
       ],
-      skipWeekend: true,
       autoRetime: true,
     },
     sound: {
@@ -59,10 +66,26 @@
   // 예전 기본 문구를 그대로 쓰던 경우에만 새 기본 문구로 바꿈 (직접 고친 문구는 유지)
   const OLD_DEFAULT_MESSAGES = ['쉬는 시간 1분 전에는 자리에 앉아주세요', '쉬는 시간 1분 전에는 자리에 앉아 교과서를 준비합니다.'];
 
+  // 예전 버전(시간표 하나)을 요일별 시정 구조로 옮김
+  function migrate(saved) {
+    const sc = saved && saved.schedule;
+    if (sc && Array.isArray(sc.periods) && !Array.isArray(sc.profiles)) {
+      sc.profiles = [{
+        id: 'default',
+        name: '기본 시정',
+        days: sc.skipWeekend === false ? [0, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5],
+        periods: sc.periods,
+      }];
+      delete sc.periods;
+      delete sc.skipWeekend;
+    }
+    return saved;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      const data = raw ? merge(clone(DEFAULTS), JSON.parse(raw)) : clone(DEFAULTS);
+      const data = raw ? merge(clone(DEFAULTS), migrate(JSON.parse(raw))) : clone(DEFAULTS);
       if (OLD_DEFAULT_MESSAGES.includes(data.general.message)) data.general.message = DEFAULTS.general.message;
       return data;
     } catch {
@@ -87,7 +110,7 @@
     },
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     replaceAll(next) {
-      Store.data = merge(clone(DEFAULTS), next);
+      Store.data = merge(clone(DEFAULTS), migrate(next));
       Store.flush();
       listeners.forEach((fn) => fn(Store.data));
     },
