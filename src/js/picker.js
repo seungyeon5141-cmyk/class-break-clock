@@ -79,9 +79,8 @@
     }).join('');
 
     $('#groupCount').textContent = st().groupCount;
-    $('#groupChips').innerHTML = everyone().length && m === 'group'
-      ? everyone().map((g) => `<span class="g-chip${st().groupPicked.includes(g.id) ? ' picked' : ''}">${esc(g.name)}</span>`).join('')
-      : '';
+    // 모둠 목록은 미리 보여주지 않고, 범위만 안내 (뽑힌 모둠은 아래 '뽑힌 기록'에만 쌓임)
+    $('#groupChips').textContent = `1모둠부터 ${st().groupCount}모둠 중에서 뽑아요`;
     if (document.activeElement !== $('#customItems')) $('#customItems').value = st().customItems.join('\n');
     $('#customCount').textContent = customLines().length;
 
