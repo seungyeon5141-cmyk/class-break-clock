@@ -237,6 +237,10 @@
     $('#timerEndPreview').addEventListener('click', () => { Sound.unlock(); Sound.timerEnd(c.endStyle || 'bell'); });
     // 알람이 울리는 중에 타이머 숫자를 누르면 소리 멈춤
     $('#timerFace').addEventListener('click', () => { if (s.done) Sound.stopAlarm(); });
+    // 타이머 창을 닫으면(✕·Esc·바깥 클릭) 울리던 종료음도 멈춤
+    UI.onPanel('timerPanel', { close: () => Sound.stopAlarm() });
+    // 창이 닫혀 있을 때 울려도 Esc로 끌 수 있게
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') Sound.stopAlarm(); });
 
     $('#timerRing').style.strokeDasharray = String(CIRC);
 
