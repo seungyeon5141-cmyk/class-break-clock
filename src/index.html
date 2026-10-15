@@ -273,16 +273,33 @@
       <textarea class="field area notice-text" id="noticeText" maxlength="300" placeholder="학생들에게 보여줄 공지를 입력하세요 (줄바꿈 가능)"></textarea>
       <h4>포스트잇 색</h4>
       <div class="swatches" id="noticeBgSwatches"></div>
-      <div class="dday-form-cols">
+      <h4>글자 색</h4>
+      <div class="dots dots-wide" id="noticeFgSwatches"></div>
+      <div class="notice-opt-row">
         <div>
-          <h4>글자 색</h4>
-          <div class="dots" id="noticeFgSwatches"></div>
+          <h4>정렬</h4>
+          <div class="icon-seg" id="noticeAlign" role="radiogroup" aria-label="정렬">
+            <button data-align="left" title="왼쪽 정렬" aria-label="왼쪽 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg></button>
+            <button data-align="center" title="가운데 정렬" aria-label="가운데 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></svg></button>
+            <button data-align="right" title="오른쪽 정렬" aria-label="오른쪽 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></svg></button>
+            <button data-align="justify" title="양쪽 정렬" aria-label="양쪽 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></button>
+          </div>
         </div>
-        <div>
-          <h4>글꼴</h4>
-          <label class="radio-pill"><input type="radio" name="noticeFont" value="main" checked /> <span>페이퍼로지</span></label>
-          <label class="radio-pill"><input type="radio" name="noticeFont" value="small" /> <span class="font-small-sample">온글잎 의연체</span></label>
+        <div class="grow-col">
+          <h4>글머리 기호</h4>
+          <div class="bullet-chips" id="noticeBullets"></div>
         </div>
+      </div>
+      <h4>글꼴</h4>
+      <div class="font-chips" id="noticeFonts">
+        <button data-font="paperlogy" class="fc-paperlogy">페이퍼로지</button>
+        <button data-font="pretendard" class="fc-pretendard">프리텐다드</button>
+        <button data-font="ownglyph" class="fc-ownglyph">온글잎 의연체</button>
+      </div>
+      <div class="weight-row" id="noticeWeightRow">
+        <span>굵기</span>
+        <input type="range" id="noticeWeight" min="100" max="900" step="100" aria-label="프리텐다드 굵기" />
+        <b id="noticeWeightVal"></b>
       </div>
       <h4>글자 크기 <b id="noticeSizeVal"></b></h4>
       <div class="volume-row">가 <input type="range" id="noticeSize" min="16" max="96" step="2" /> <span class="big-ga">가</span></div>
@@ -438,6 +455,17 @@
       </div>
     </div>
   </section>
+
+  <!-- 확인 창 -->
+  <div class="modal" id="askModal" hidden>
+    <div class="modal-card ask-card" role="alertdialog" aria-labelledby="askText">
+      <p class="ask-text" id="askText"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="askNo">취소</button>
+        <button class="btn btn-primary" id="askYes">확인</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 

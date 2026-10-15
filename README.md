@@ -1,7 +1,7 @@
 # 쉬는시간 알리미 ⏰
 
 교실 컴퓨터 바탕화면에 띄워 두는 **자동 시계(쉬는 시간 알리미) · 타이머 · 학생 뽑기 · 디데이 · 돌림판** 프로그램입니다.
-연보라·핑크 파스텔 테마이고, 큰 글씨는 **페이퍼로지**, 작은 글씨는 **온글잎 의연체**를 씁니다.
+연보라·핑크 파스텔 테마이고, 큰 제목·시계 숫자는 **페이퍼로지**, 버튼·메뉴 같은 화면 글자는 **프리텐다드**, 친근한 안내 문구는 **온글잎 의연체**를 씁니다.
 
 ## 주요 기능
 
@@ -28,7 +28,9 @@
 ### 📌 공지사항 (포스트잇)
 - 하단 **공지** 버튼 › ＋ 로 공지를 쓰면 메인 화면에 **포스트잇**으로 붙어요 (줄바꿈 가능, 최대 20개)
 - **포스트잇 색**: 파스텔 컬러칩 10가지 + 사용자 지정 색
-- **글자 색**: 12가지 + 사용자 지정 색, **글자 크기**: 16~96px, **글꼴**: 페이퍼로지 / 온글잎 의연체
+- **글자 색**: 12가지 + 사용자 지정 색, **글자 크기**: 16~96px
+- **글꼴**: 페이퍼로지 / 프리텐다드(Thin~Black 9가지 굵기) / 온글잎 의연체
+- **정렬**: 왼쪽 · 가운데 · 오른쪽 · 양쪽, **글머리 기호**: • ◦ – ✔ ★ ♥ ▶ 📌 1. ①
 - 포스트잇은 **끌어서 원하는 자리로 옮기고**(위치 저장), **두 번 눌러 바로 수정**
 - **화면에서 보기**로 붙였다 뗐다, “위치 처음으로”로 오른쪽 위에 다시 모으기
 
@@ -50,13 +52,13 @@
 
 ### 방법 1: GitHub Actions (추천)
 1. 저장소의 **Actions › 설치 파일 만들기 › Run workflow** 실행
-2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.1.0.exe`가 들어 있어요
-3. `v1.1.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
+2. 끝나면 실행 결과 아래 **windows-installer**를 내려받으면 `ClassBreakClock-Setup-1.2.0.exe`가 들어 있어요
+3. `v1.2.0` 같은 태그를 푸시하면 **Releases**에도 자동으로 올라갑니다
 
 ### 방법 2: 내 컴퓨터(Windows)에서
 ```bash
 npm install
-npm run dist:win     # release/ClassBreakClock-Setup-1.1.0.exe 생성
+npm run dist:win     # release/ClassBreakClock-Setup-1.2.0.exe 생성
 ```
 
 > 코드 서명 인증서가 없어서 처음 실행할 때 Windows SmartScreen이 “알 수 없는 게시자”라고 경고할 수 있어요.
@@ -76,7 +78,7 @@ preload.js       화면에 노출하는 안전한 API
 src/index.html   화면
 src/css/         파스텔 테마
 src/js/          clock(시간표·자동 종), notice(공지 포스트잇), timer, picker, dday, roulette, settings, sound(종소리 합성)
-src/fonts/       페이퍼로지, 온글잎 의연체
+src/fonts/       페이퍼로지, 프리텐다드, 온글잎 의연체
 sample/          학생 명단 CSV 예시
 ```
 
@@ -85,4 +87,5 @@ sample/          학생 명단 CSV 예시
 
 ## 글꼴
 - 페이퍼로지(Paperlogy) — SIL Open Font License
+- 프리텐다드(Pretendard) — SIL Open Font License
 - 온글잎 의연체(Ownglyph EuiyeonChae) — 온글잎 무료 글꼴. 재배포 전에 배포처의 라이선스 조건을 확인해 주세요.

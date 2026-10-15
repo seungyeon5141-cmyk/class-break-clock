@@ -58,7 +58,7 @@
     if (!students().length) { toast('먼저 설정에서 학생 명단을 불러와 주세요'); return; }
     let candidates = pool();
     if (!candidates.length) {
-      if (st().noRepeat && st().pickedIds.length && confirm('모든 학생이 한 번씩 뽑혔어요. 처음부터 다시 뽑을까요?')) {
+      if (st().noRepeat && st().pickedIds.length && await UI.ask('모든 학생이 한 번씩 뽑혔어요. 처음부터 다시 뽑을까요?', '다시 뽑기')) {
         st().pickedIds = [];
         Store.save();
         candidates = pool();

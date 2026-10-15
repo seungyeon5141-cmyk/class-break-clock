@@ -52,7 +52,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       const modal = $$('.modal').find((m) => !m.hidden);
-      if (modal) modal.hidden = true; else closePanel();
+      if (modal && modal.id === 'askModal') $('#askNo').click();
+      else if (modal) modal.hidden = true; else closePanel();
     });
     $$('.modal [data-modal-close]').forEach((btn) => btn.addEventListener('click', () => { btn.closest('.modal').hidden = true; }));
   }
@@ -86,7 +87,28 @@
     return buf[0] % n;
   }
 
+  // 브라우저 확인 창 대신 쓰는 앱 안의 확인 창. 확인을 누르면 true
+  function ask(message, okLabel = '확인') {
+    const modal = $('#askModal');
+    $('#askText').textContent = message;
+    $('#askYes').textContent = okLabel;
+    modal.hidden = false;
+    $('#askYes').focus();
+    return new Promise((resolve) => {
+      const done = (v) => {
+        modal.hidden = true;
+        $('#askYes').onclick = null;
+        $('#askNo').onclick = null;
+        modal.onclick = null;
+        resolve(v);
+      };
+      $('#askYes').onclick = () => done(true);
+      $('#askNo').onclick = () => done(false);
+      modal.onclick = (e) => { if (e.target === modal) done(false); };
+    });
+  }
+
   const pad = (n, w = 2) => String(n).padStart(w, '0');
 
-  window.UI = { $, $$, esc, toast, openPanel, closePanel, onPanel, initPanels, download, shuffle, randInt, pad };
+  window.UI = { $, $$, esc, toast, ask, openPanel, closePanel, onPanel, initPanels, download, shuffle, randInt, pad };
 })();

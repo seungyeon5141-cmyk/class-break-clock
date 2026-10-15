@@ -81,7 +81,7 @@
       scheduleChanged();
     });
     $('#skipWeekend').addEventListener('change', (e) => { Store.data.schedule.skipWeekend = e.target.checked; scheduleChanged(false); });
-    $('#genApply').addEventListener('click', () => {
+    $('#genApply').addEventListener('click', async () => {
       const start = Clock.toSec($('#genStart').value);
       const cls = Number($('#genClass').value) * 60;
       const brk = Number($('#genBreak').value) * 60;
@@ -89,7 +89,7 @@
       const lunchAfter = Number($('#genLunchAfter').value);
       const lunch = Number($('#genLunch').value) * 60;
       if (start === null || !cls || !count) { toast('입력값을 확인해 주세요'); return; }
-      if (!confirm('지금 시간표를 지우고 새로 만들까요?')) return;
+      if (!await UI.ask('지금 시간표를 지우고 새로 만들까요?', '새로 만들기')) return;
       const periods = [];
       let t = start;
       for (let i = 1; i <= count; i++) {
@@ -252,7 +252,7 @@
       if (!file) return;
       const list = parseStudents(decodeCsv(await file.arrayBuffer()));
       if (!list.length) { toast('학생을 찾지 못했어요. 파일 형식을 확인해 주세요'); return; }
-      if (Store.data.students.length && !confirm(`지금 명단(${Store.data.students.length}명)을 새 명단(${list.length}명)으로 바꿀까요?`)) return;
+      if (Store.data.students.length && !await UI.ask(`지금 명단(${Store.data.students.length}명)을 새 명단(${list.length}명)으로 바꿀까요?`)) return;
       Store.data.students = list;
       Store.data.picker.pickedIds = [];
       Store.data.picker.excludedIds = [];
@@ -273,9 +273,9 @@
       const last = inputs[inputs.length - 1];
       if (last) { last.focus(); last.select(); }
     });
-    $('#studentClear').addEventListener('click', () => {
+    $('#studentClear').addEventListener('click', async () => {
       if (!Store.data.students.length) return;
-      if (!confirm('학생 명단을 모두 지울까요?')) return;
+      if (!await UI.ask('학생 명단을 모두 지울까요?', '모두 지우기')) return;
       Store.data.students = [];
       Store.data.picker.history = [];
       studentsChanged();
@@ -329,7 +329,7 @@
       });
       $('#alwaysOnTop').addEventListener('change', (e) => d.setAlwaysOnTop(e.target.checked));
       $('#closeToTray').addEventListener('change', (e) => d.setCloseToTray(e.target.checked));
-      $('#appQuit').addEventListener('click', () => { if (confirm('프로그램을 완전히 종료할까요?\n종소리도 울리지 않게 돼요.')) d.quit(); });
+      $('#appQuit').addEventListener('click', async () => { if (await UI.ask('프로그램을 완전히 종료할까요?\n종소리도 울리지 않게 돼요.')) d.quit(); });
       d.onAutoStartChanged((v) => { $('#autoStart').checked = v; });
     } else {
       $('#appQuit').hidden = true;
@@ -347,7 +347,7 @@
       try {
         const data = JSON.parse(await file.text());
         if (!data || typeof data !== 'object' || !data.schedule) throw new Error('bad');
-        if (!confirm('백업 파일로 모든 설정을 바꿀까요?')) return;
+        if (!await UI.ask('백업 파일로 모든 설정을 바꿀까요?', '바꾸기')) return;
         Store.replaceAll(data);
         location.reload();
       } catch {

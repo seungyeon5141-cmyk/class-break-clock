@@ -172,7 +172,7 @@
       if (e.target.dataset && e.target.dataset.custom) { swatchHtml(); preview(); }
     });
 
-    $('#ddayList').addEventListener('click', (e) => {
+    $('#ddayList').addEventListener('click', async (e) => {
       const item = e.target.closest('.dday-item');
       const act = e.target.dataset.act;
       if (!item || !act) return;
@@ -180,7 +180,7 @@
       if (act === 'edit') openModal(id);
       if (act === 'del') {
         const d = Store.data.ddays.find((x) => x.id === id);
-        if (d && confirm(`"${d.title}" 디데이를 삭제할까요?`)) {
+        if (d && await UI.ask(`"${d.title}" 디데이를 삭제할까요?`, '삭제')) {
           Store.data.ddays = Store.data.ddays.filter((x) => x.id !== id);
           Store.save(); renderAll();
         }
@@ -191,9 +191,9 @@
       const d = Store.data.ddays.find((x) => x.id === e.target.closest('.dday-item').dataset.id);
       if (d) { d.show = e.target.checked; Store.save(); renderPins(); }
     });
-    $('#ddayClearAll').addEventListener('click', () => {
+    $('#ddayClearAll').addEventListener('click', async () => {
       if (!Store.data.ddays.length) return;
-      if (confirm('디데이를 모두 삭제할까요?')) { Store.data.ddays = []; Store.save(); renderAll(); }
+      if (await UI.ask('디데이를 모두 삭제할까요?', '모두 삭제')) { Store.data.ddays = []; Store.save(); renderAll(); }
     });
 
     UI.onPanel('ddayPanel', { open: renderList });

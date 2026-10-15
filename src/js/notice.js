@@ -19,6 +19,36 @@
   const FG_COLORS = ['#4B3B63', '#2E2E3A', '#FF4D6D', '#FF9F5A', '#F2B705', '#5CC27E',
     '#4BAEE8', '#2F5FD0', '#8C6CF0', '#C759C9', '#F47BB6', '#FFFFFF'];
 
+  // 글머리 기호: 줄마다 앞에 붙는 표시 (num/circle 은 번호)
+  const BULLETS = [
+    { v: 'none', label: '없음' },
+    { v: '•', label: '•' },
+    { v: '◦', label: '◦' },
+    { v: '-', label: '–' },
+    { v: '✔', label: '✔' },
+    { v: '★', label: '★' },
+    { v: '♥', label: '♥' },
+    { v: '▶', label: '▶' },
+    { v: '📌', label: '📌' },
+    { v: 'num', label: '1.' },
+    { v: 'circle', label: '①' },
+  ];
+  const CIRCLED = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
+  const FONTS = {
+    paperlogy: 'var(--font-main)',
+    pretendard: 'var(--font-ui)',
+    ownglyph: 'var(--font-small)',
+  };
+  const WEIGHT_NAMES = { 100: 'Thin', 200: 'ExtraLight', 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold', 800: 'ExtraBold', 900: 'Black' };
+
+  // 예전 버전에서 만든 공지도 새 옵션으로 읽기
+  function normalize(n) {
+    const font = n.font === 'main' ? 'paperlogy' : n.font === 'small' ? 'ownglyph' : (FONTS[n.font] ? n.font : 'paperlogy');
+    return {
+      align: 'left', bullet: 'none', weight: 700, ...n, font,
+    };
+  }
+
   const notices = () => Store.data.notices;
 
   // 포스트잇마다 살짝 다른 기울기
@@ -28,13 +58,29 @@
     return ((Math.abs(h) % 5) - 2) * 0.8;
   }
 
-  function postitStyle(n) {
-    const font = n.font === 'small' ? 'var(--font-small)' : 'var(--font-main)';
-    return `--pi-bg:${esc(n.bg)};--pi-fg:${esc(n.fg)};--pi-size:${Number(n.size) || 32}px;--pi-font:${font};--pi-tilt:${tilt(n.id || 'x')}deg`;
+  function postitStyle(raw) {
+    const n = normalize(raw);
+    const weight = n.font === 'pretendard' ? Number(n.weight) || 700 : 'normal';
+    return `--pi-bg:${esc(n.bg)};--pi-fg:${esc(n.fg)};--pi-size:${Number(n.size) || 32}px;--pi-font:${FONTS[n.font]};--pi-weight:${weight};--pi-tilt:${tilt(n.id || 'x')}deg`;
   }
 
-  function postitInner(n) {
-    return `<span class="postit-tape"></span><div class="postit-text">${esc(n.text)}</div>`;
+  function marker(bullet, i) {
+    if (bullet === 'num') return `${i}.`;
+    if (bullet === 'circle') return CIRCLED[i - 1] || `${i}.`;
+    return bullet;
+  }
+
+  // 줄마다 글머리 기호를 붙여서 그림. 빈 줄은 간격으로 남김
+  function postitInner(raw) {
+    const n = normalize(raw);
+    let count = 0;
+    const lines = String(n.text).split('\n').map((line) => {
+      if (!line.trim()) return '<div class="pi-line pi-empty"></div>';
+      count += 1;
+      const b = n.bullet !== 'none' ? `<span class="pi-bullet">${esc(marker(n.bullet, count))}</span>` : '';
+      return `<div class="pi-line">${b}<span class="pi-txt">${esc(line)}</span></div>`;
+    }).join('');
+    return `<span class="postit-tape"></span><div class="postit-text align-${esc(n.align)}${n.bullet !== 'none' ? ' has-bullet' : ''}">${lines}</div>`;
   }
 
   // ---------- 메인 화면 ----------
@@ -161,8 +207,13 @@
   function preview() {
     draft.text = $('#noticeText').value;
     draft.size = Number($('#noticeSize').value);
-    draft.font = document.querySelector('input[name="noticeFont"]:checked').value;
+    draft.weight = Number($('#noticeWeight').value);
     $('#noticeSizeVal').textContent = `${draft.size}px`;
+    $('#noticeWeightVal').textContent = `${draft.weight} ${WEIGHT_NAMES[draft.weight] || ''}`;
+    $('#noticeWeightRow').hidden = draft.font !== 'pretendard';
+    $$('#noticeAlign [data-align]').forEach((b) => b.classList.toggle('active', b.dataset.align === draft.align));
+    $$('#noticeBullets [data-bullet]').forEach((b) => b.classList.toggle('active', b.dataset.bullet === draft.bullet));
+    $$('#noticeFonts [data-font]').forEach((b) => b.classList.toggle('active', b.dataset.font === draft.font));
     const el = $('#noticePreview');
     el.setAttribute('style', postitStyle(draft));
     el.innerHTML = postitInner({ ...draft, text: draft.text.trim() ? draft.text : '공지 내용이 여기에 보여요' });
@@ -170,13 +221,13 @@
 
   function openModal(id) {
     const existing = notices().find((n) => n.id === id);
-    draft = existing ? { ...existing }
-      : { id: null, text: '', bg: BG_COLORS[0].v, fg: FG_COLORS[0], size: 32, font: 'main', show: true };
+    draft = existing ? normalize(existing)
+      : normalize({ id: null, text: '', bg: BG_COLORS[0].v, fg: FG_COLORS[0], size: 32, font: 'paperlogy', show: true });
     $('#noticeModalTitle').textContent = existing ? '공지 수정하기' : '공지 새로 쓰기';
     $('#noticeSave').textContent = existing ? '저장' : '붙이기';
     $('#noticeText').value = draft.text;
     $('#noticeSize').value = draft.size;
-    document.querySelector(`input[name="noticeFont"][value="${draft.font === 'small' ? 'small' : 'main'}"]`).checked = true;
+    $('#noticeWeight').value = draft.weight;
     swatches();
     $('#noticeModal').hidden = false;
     preview();
@@ -204,7 +255,21 @@
     $('#noticeSave').addEventListener('click', save);
     $('#noticeText').addEventListener('input', preview);
     $('#noticeSize').addEventListener('input', preview);
-    $$('input[name="noticeFont"]').forEach((r) => r.addEventListener('change', preview));
+    $('#noticeWeight').addEventListener('input', preview);
+    $('#noticeBullets').innerHTML = BULLETS.map((b) =>
+      `<button data-bullet="${esc(b.v)}" title="${b.v === 'none' ? '글머리 기호 없음' : `글머리 기호 ${esc(b.label)}`}">${esc(b.label)}</button>`).join('');
+    $('#noticeAlign').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-align]');
+      if (b) { draft.align = b.dataset.align; preview(); }
+    });
+    $('#noticeBullets').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-bullet]');
+      if (b) { draft.bullet = b.dataset.bullet; preview(); }
+    });
+    $('#noticeFonts').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-font]');
+      if (b) { draft.font = b.dataset.font; preview(); }
+    });
     $('#noticeText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) save(); });
 
     $('#noticeBgSwatches').addEventListener('click', (e) => {
@@ -233,13 +298,13 @@
       if (e.target.dataset && e.target.dataset.custom) { swatches(); preview(); }
     });
 
-    $('#noticeList').addEventListener('click', (e) => {
+    $('#noticeList').addEventListener('click', async (e) => {
       const item = e.target.closest('.notice-item');
       const act = e.target.dataset.act;
       if (!item || !act) return;
       const id = item.dataset.id;
       if (act === 'edit') openModal(id);
-      if (act === 'del' && confirm('이 공지를 삭제할까요?')) {
+      if (act === 'del' && await UI.ask('이 공지를 삭제할까요?', '삭제')) {
         Store.data.notices = notices().filter((n) => n.id !== id);
         Store.save(); renderAll();
       }
