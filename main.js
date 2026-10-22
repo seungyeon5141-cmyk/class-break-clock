@@ -1,5 +1,5 @@
 // 쉬는시간 알리미 - Electron 메인 프로세스
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen, powerMonitor } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen, powerMonitor, session, shell, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -56,6 +56,41 @@ function setAutoLaunch(enabled) {
   writeConfig({ autoLaunch: !!enabled });
   refreshTrayMenu();
   return getAutoLaunch();
+}
+
+// ---------- 유튜브 배경 음악 ----------
+const YT_HOSTS = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtube-nocookie.com', 'youtube-nocookie.com'];
+function isYouTubeUrl(raw) {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && YT_HOSTS.includes(u.hostname);
+  } catch {
+    return false;
+  }
+}
+
+// 파일로 연 화면에는 주소(Referer)가 없어서 유튜브 플레이어가 '오류 153'을 낸다.
+// 유튜브로 가는 요청에만 Referer를 붙여 준다.
+function allowYouTubeEmbeds() {
+  const filter = { urls: ['https://www.youtube-nocookie.com/*', 'https://www.youtube.com/*'] };
+  session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
+    const headers = details.requestHeaders;
+    if (!headers.Referer && !headers.referer) headers.Referer = 'https://www.youtube-nocookie.com/';
+    callback({ requestHeaders: headers });
+  });
+}
+
+// 영상 제목 알아내기 (유튜브 oEmbed)
+async function youtubeTitle(url) {
+  if (!isYouTubeUrl(url)) return '';
+  try {
+    const res = await net.fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`);
+    if (!res.ok) return '';
+    const data = await res.json();
+    return typeof data.title === 'string' ? data.title.slice(0, 80) : '';
+  } catch {
+    return '';
+  }
 }
 
 // ---------- 창 상태 ----------
@@ -130,8 +165,11 @@ function createWindow() {
   ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen', 'always-on-top-changed']
     .forEach((evt) => win.on(evt, sendWinState));
 
-  // 외부 링크/새 창 차단
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  // 새 창은 막고, 유튜브 영상의 'YouTube에서 보기' 같은 링크만 기본 브라우저로 연다
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isYouTubeUrl(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
 }
 
@@ -224,6 +262,7 @@ function registerIpc() {
   ipcMain.handle('tray:setCloseToTray', (_e, flag) => writeConfig({ closeToTray: !!flag }).closeToTray);
   ipcMain.handle('app:quit', () => { isQuitting = true; app.quit(); });
   ipcMain.handle('app:version', () => app.getVersion());
+  ipcMain.handle('youtube:title', (_e, url) => youtubeTitle(String(url)));
 }
 
 // ---------- 앱 시작 ----------
@@ -239,6 +278,7 @@ if (!app.requestSingleInstanceLock()) {
     const config = readConfig();
     if (config.autoLaunch === undefined && app.isPackaged) setAutoLaunch(true);
 
+    allowYouTubeEmbeds();
     registerIpc();
     createWindow();
     createTray();

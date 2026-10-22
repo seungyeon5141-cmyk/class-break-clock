@@ -310,6 +310,7 @@
 
   const Sound = {
     unlock: ensure,
+    context: ensure,
     classStart() { return chime('classStart'); },
     breakStart() { return chime('breakStart'); },
     warning(withVoice) {

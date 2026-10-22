@@ -33,6 +33,7 @@
   function start() {
     initPanels();
     initTitlebar();
+    Fonts.init();
     Settings.init();
     DDay.init();
     Notice.init();
@@ -41,6 +42,8 @@
     Picker.init();
     Roulette.init();
     Race.init();
+    Board.init();
+    Bgm.init();
     Clock.start();
     // 첫 클릭 때 오디오 장치를 미리 깨워 둔다
     document.addEventListener('pointerdown', () => Sound.unlock(), { once: true });

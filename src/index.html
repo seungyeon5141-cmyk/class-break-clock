@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' data: blob:; frame-src https://www.youtube-nocookie.com https://www.youtube.com" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>쉬는시간 알리미</title>
   <link rel="stylesheet" href="css/style.css" />
@@ -69,12 +69,21 @@
       <button class="dock-btn" data-open="timerPanel"><span class="dock-ico"><img src="assets/icons/timer.webp" alt="" draggable="false" /></span><span>타이머</span></button>
       <button class="dock-btn" data-open="pickerPanel"><span class="dock-ico"><img src="assets/icons/picker.webp" alt="" draggable="false" /></span><span>뽑기</span></button>
       <button class="dock-btn" data-open="racePanel"><span class="dock-ico"><img src="assets/icons/race.webp" alt="" draggable="false" /></span><span>뽑기 레이스</span></button>
+      <button class="dock-btn" data-open="boardPanel"><span class="dock-ico"><img src="assets/icons/board.webp" alt="" draggable="false" /></span><span>판서</span></button>
+      <button class="dock-btn" data-open="bgmPanel"><span class="dock-ico"><img src="assets/icons/chime.webp" alt="" draggable="false" /></span><span>배경 음악</span></button>
       <button class="dock-btn" data-open="noticePanel"><span class="dock-ico"><img src="assets/icons/notice.webp" alt="" draggable="false" /></span><span>공지</span></button>
       <button class="dock-btn" data-open="popupPanel"><span class="dock-ico"><img src="assets/icons/popup.webp" alt="" draggable="false" /></span><span>팝업</span></button>
       <button class="dock-btn" data-open="ddayPanel"><span class="dock-ico"><img src="assets/icons/dday.webp" alt="" draggable="false" /></span><span>디데이</span></button>
       <button class="dock-btn" data-open="roulettePanel"><span class="dock-ico"><img src="assets/icons/roulette.webp" alt="" draggable="false" /></span><span>돌림판</span></button>
       <button class="dock-btn" data-open="settingsPanel"><span class="dock-ico"><img src="assets/icons/settings.webp" alt="" draggable="false" /></span><span>설정</span></button>
     </nav>
+
+    <!-- 배경 음악이 나오는 동안 보이는 작은 표시 -->
+    <div class="bgm-mini" id="bgmMini" hidden role="button" tabindex="0" title="배경 음악 열기">
+      <span class="bc-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bm-title" id="bgmMiniTitle"></span>
+      <button class="bm-stop" id="bgmMiniStop" title="음악 끄기" aria-label="음악 끄기">■</button>
+    </div>
   </main>
 
   <!-- ===== 패널 공통 배경 ===== -->
@@ -338,7 +347,7 @@
         </div>
       </div>
       <h4>글꼴</h4>
-      <div class="pf-chips" id="popupFonts"></div>
+      <div class="font-pick-host" id="popupFontPick"></div>
       <h4>글자 효과 <small>학생들의 눈길을 확 끌어요</small></h4>
       <div class="pe-chips" id="popupEffects"></div>
       <label class="check"><input type="checkbox" id="popupSound" /> <span>띄울 때 “띵동” 알림음</span></label>
@@ -399,17 +408,7 @@
         </div>
       </div>
       <h4>글꼴</h4>
-      <div class="font-chips" id="noticeFonts">
-        <button data-font="paperlogy" class="fc-paperlogy">페이퍼로지</button>
-        <button data-font="pretendard" class="fc-pretendard">프리텐다드</button>
-        <button data-font="ownglyph" class="fc-ownglyph">온글잎 의연체</button>
-        <button data-font="danjunghae" class="fc-danjunghae">카페24 단정해</button>
-        <button data-font="dangdanghae" class="fc-dangdanghae">카페24 당당해</button>
-        <button data-font="anemone" class="fc-anemone">카페24 아네모네</button>
-        <button data-font="ssurround" class="fc-ssurround">카페24 써라운드</button>
-        <button data-font="ssurroundair" class="fc-ssurroundair">카페24 써라운드 에어</button>
-        <button data-font="supermagic" class="fc-supermagic">카페24 슈퍼매직</button>
-      </div>
+      <div class="font-pick-host" id="noticeFontPick"></div>
       <label class="check" id="noticeBoldRow"><input type="checkbox" id="noticeBold" /> <span>굵게 (Bold)</span></label>
       <div class="weight-row" id="noticeWeightRow">
         <span>굵기</span>
@@ -524,6 +523,117 @@
       </aside>
     </div>
   </section>
+
+  <!-- ===== 판서 ===== -->
+  <section class="panel panel-board" id="boardPanel" hidden aria-label="판서">
+    <header class="panel-head">
+      <h2><span class="ph-ico"><img src="assets/icons/board.webp" alt="" draggable="false" /></span>판서</h2>
+      <div class="board-head-tools">
+        <label class="auto-switch" title="쓰는 대로 자동으로 저장"><input type="checkbox" id="boardAutosave" /><span class="as-track"><span class="as-dot"></span></span>자동 저장</label>
+        <button class="hd-btn" id="boardNew" title="새 판서">＋ 새 판서</button>
+        <button class="hd-btn" id="boardSave" title="저장">💾 저장</button>
+        <button class="hd-btn" id="boardListBtn" title="저장한 판서 목록">📂 목록</button>
+        <button class="hd-btn" id="boardPrint" title="인쇄">🖨️ 인쇄</button>
+      </div>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-expand title="크게 보기">⤢</button>
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="board-toolbar" id="boardToolbar" data-mode="text">
+      <div class="bt-seg" id="boardModes" role="radiogroup" aria-label="쓰기 도구">
+        <button data-mode="text" title="글자 쓰기">✏️ 글자</button>
+        <button data-mode="pen" title="펜으로 그리기">🖊️ 펜</button>
+        <button data-mode="eraser" title="그림 지우개">🧽 지우개</button>
+      </div>
+      <span class="bt-sep"></span>
+      <div class="bt-group text-only">
+        <div class="bt-size">
+          <button class="bt-btn" data-step="-1" title="글자 작게" aria-label="글자 작게">−</button>
+          <select id="boardSize" aria-label="글자 크기"></select>
+          <button class="bt-btn" data-step="1" title="글자 크게" aria-label="글자 크게">＋</button>
+        </div>
+        <div class="font-pick-host" id="boardFontPick"></div>
+        <select id="boardWeight" class="bt-select" aria-label="글씨 굵기" title="글씨 굵기"></select>
+        <span class="bt-sep"></span>
+        <button class="bt-btn" data-cmd="bold" title="굵게 (Ctrl+B)"><b>B</b></button>
+        <button class="bt-btn" data-cmd="italic" title="기울임 (Ctrl+I)"><i style="font-family:serif">I</i></button>
+        <button class="bt-btn" data-cmd="underline" title="밑줄 (Ctrl+U)"><u>U</u></button>
+        <button class="bt-btn" data-cmd="strikeThrough" title="취소선"><s>S</s></button>
+        <button class="bt-btn bt-color" id="boardColorBtn" title="글자 색" aria-label="글자 색"><span class="bt-a">A</span><span class="bt-bar"></span></button>
+        <button class="bt-btn bt-mark" id="boardMarkBtn" title="형광펜" aria-label="형광펜"><span class="bt-a">🖍️</span></button>
+        <span class="bt-sep"></span>
+        <button class="bt-btn" data-cmd="justifyLeft" title="왼쪽 정렬" aria-label="왼쪽 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg></button>
+        <button class="bt-btn" data-cmd="justifyCenter" title="가운데 정렬" aria-label="가운데 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></svg></button>
+        <button class="bt-btn" data-cmd="justifyRight" title="오른쪽 정렬" aria-label="오른쪽 정렬"><svg viewBox="0 0 24 24"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></svg></button>
+        <button class="bt-btn" data-cmd="insertUnorderedList" title="글머리 기호" aria-label="글머리 기호"><svg viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.6"/><circle cx="5" cy="12" r="1.6"/><circle cx="5" cy="17" r="1.6"/><path d="M10 7h10M10 12h10M10 17h10"/></svg></button>
+      </div>
+      <div class="bt-group pen-only">
+        <button class="bt-btn bt-color" id="boardPenBtn" title="펜 색" aria-label="펜 색"><span class="bt-a">🖊️</span><span class="bt-bar"></span></button>
+        <div class="pen-sizes" id="boardPenSizes" aria-label="펜 굵기"></div>
+        <button class="bt-btn" id="boardUndo" title="방금 그린 것 되돌리기">↶ 되돌리기</button>
+      </div>
+      <span class="bt-grow"></span>
+      <button class="bt-btn bt-bg" id="boardBgBtn" title="칠판 색" aria-label="칠판 색"><span class="bt-chip"></span>칠판 색</button>
+      <button class="bt-btn bt-clear" id="boardClear" title="모두 지우기">🗑️ 지우기</button>
+    </div>
+    <div class="board-frame">
+      <div class="board-surface" id="boardSurface">
+        <div class="board-text empty" id="boardText" contenteditable="true" spellcheck="false" data-placeholder="여기를 눌러 판서를 시작하세요 ✏️" aria-label="판서 내용"></div>
+        <canvas class="board-ink" id="boardInk" aria-hidden="true"></canvas>
+        <div class="board-count" id="boardCount">0 / 10,000</div>
+      </div>
+      <div class="board-tray" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+    </div>
+  </section>
+
+  <div class="modal" id="boardListModal" hidden role="dialog" aria-label="저장한 판서">
+    <div class="modal-card">
+      <button class="modal-x" data-modal-close aria-label="닫기">✕</button>
+      <h3>📂 저장한 판서</h3>
+      <div class="board-list" id="boardListBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== 배경 음악 ===== -->
+  <section class="panel" id="bgmPanel" hidden aria-label="배경 음악">
+    <header class="panel-head">
+      <h2><span class="ph-ico"><img src="assets/icons/chime.webp" alt="" draggable="false" /></span>수업 배경 음악</h2>
+      <div class="panel-head-actions">
+        <button class="ph-btn" data-close title="닫기">✕</button>
+      </div>
+    </header>
+    <div class="panel-notice">수업할 때 잔잔하게 깔아 둘 음악이에요. 창을 닫아도 계속 나오고, 메인 화면의 음악 표시를 누르면 끌 수 있어요.</div>
+    <div class="panel-body bgm-layout">
+      <nav class="bgm-cats" id="bgmCats" aria-label="음악 종류"></nav>
+      <div class="bgm-main">
+        <h3 class="bgm-cat-title" id="bgmCatTitle"></h3>
+        <div class="side-card">
+          <h4>기본 음악 <small>인터넷 없이 바로 나와요 · 앱이 직접 연주해요</small></h4>
+          <div class="bgm-list" id="bgmBuiltin"></div>
+        </div>
+        <div class="side-card">
+          <h4>유튜브 영상 <small>인터넷이 연결되어 있어야 해요</small></h4>
+          <div class="bgm-video-slot" id="bgmVideoSlot" hidden></div>
+          <div class="bgm-list" id="bgmLinks"></div>
+          <div class="bgm-add">
+            <input class="field" id="bgmUrl" placeholder="유튜브 주소 붙여 넣기 (예: https://youtu.be/...)" aria-label="유튜브 주소" />
+            <input class="field bgm-name" id="bgmUrlName" maxlength="80" placeholder="이름 (비우면 자동)" aria-label="영상 이름" />
+            <button class="btn btn-primary" id="bgmAdd">＋ 넣기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="bgm-now" id="bgmNow">
+      <span class="bc-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="bn-title"><small>지금 나오는 음악</small><b id="bgmNowTitle">꺼져 있어요</b></span>
+      <label class="bn-vol">🔈 <input type="range" id="bgmVolume" min="0" max="100" step="1" aria-label="배경 음악 음량" /> <b id="bgmVolVal"></b></label>
+      <button class="btn btn-soft" id="bgmStop">■ 끄기</button>
+    </footer>
+  </section>
+
+  <!-- 유튜브 플레이어 (창을 닫아도 계속 재생되도록 패널 밖에 둠) -->
+  <div class="yt-host" id="ytHost"><iframe id="ytFrame" src="about:blank" title="유튜브 배경 음악" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
 
   <!-- ===== 설정 ===== -->
   <section class="panel" id="settingsPanel" hidden aria-label="설정">
@@ -675,7 +785,10 @@
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/voice-data.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/fonts.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/music.js"></script>
   <script src="js/clock.js"></script>
   <script src="js/dday.js"></script>
   <script src="js/notice.js"></script>
@@ -683,6 +796,8 @@
   <script src="js/timer.js"></script>
   <script src="js/picker.js"></script>
   <script src="js/roulette.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/bgm.js"></script>
   <script src="vendor/matter.min.js"></script>
   <script src="js/race.js"></script>
   <script src="js/settings.js"></script>

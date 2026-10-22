@@ -34,24 +34,14 @@
     { v: 'circle', label: '①' },
   ];
   const CIRCLED = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
-  const FONTS = {
-    paperlogy: 'var(--font-main)',
-    pretendard: 'var(--font-ui)',
-    ownglyph: 'var(--font-small)',
-    danjunghae: "'Cafe24 Danjunghae', var(--font-ui)",
-    dangdanghae: "'Cafe24 Dangdanghae', var(--font-ui)",
-    anemone: "'Cafe24 Ohsquare', var(--font-ui)",
-    ssurround: "'Cafe24 Ssurround', var(--font-ui)",
-    ssurroundair: "'Cafe24 SsurroundAir', var(--font-ui)",
-    supermagic: "'Cafe24 Supermagic', var(--font-ui)",
-  };
+  let fontPick = null;
   const MIN_W = 140;
   const MIN_H = 80;
   const WEIGHT_NAMES = { 100: 'Thin', 200: 'ExtraLight', 300: 'Light', 400: 'Regular', 500: 'Medium', 600: 'SemiBold', 700: 'Bold', 800: 'ExtraBold', 900: 'Black' };
 
   // 예전 버전에서 만든 공지도 새 옵션으로 읽기
   function normalize(n) {
-    const font = n.font === 'main' ? 'paperlogy' : n.font === 'small' ? 'ownglyph' : (FONTS[n.font] ? n.font : 'paperlogy');
+    const font = n.font === 'main' ? 'paperlogy' : n.font === 'small' ? 'ownglyph' : (Fonts.has(n.font) ? n.font : 'paperlogy');
     return {
       align: 'left', bullet: 'none', weight: 700, ...n, font,
     };
@@ -69,7 +59,7 @@
   function postitStyle(raw) {
     const n = normalize(raw);
     const weight = n.font === 'pretendard' ? Number(n.weight) || 700 : n.font === 'supermagic' ? (n.bold ? 700 : 400) : 'normal';
-    return `--pi-bg:${esc(n.bg)};--pi-fg:${esc(n.fg)};--pi-size:${Number(n.size) || 32}px;--pi-font:${FONTS[n.font]};--pi-weight:${weight};--pi-tilt:${tilt(n.id || 'x')}deg`;
+    return `--pi-bg:${esc(n.bg)};--pi-fg:${esc(n.fg)};--pi-size:${Number(n.size) || 32}px;--pi-font:${Fonts.css(n.font, 'paperlogy')};--pi-weight:${weight};--pi-tilt:${tilt(n.id || 'x')}deg`;
   }
 
   function marker(bullet, i) {
@@ -261,7 +251,7 @@
     draft.fit = $('#noticeFit').checked;
     $$('#noticeAlign [data-align]').forEach((b) => b.classList.toggle('active', b.dataset.align === draft.align));
     $$('#noticeBullets [data-bullet]').forEach((b) => b.classList.toggle('active', b.dataset.bullet === draft.bullet));
-    $$('#noticeFonts [data-font]').forEach((b) => b.classList.toggle('active', b.dataset.font === draft.font));
+    fontPick?.refresh();
     const el = $('#noticePreview');
     el.setAttribute('style', postitStyle(draft));
     el.innerHTML = postitInner({ ...draft, text: draft.text.trim() ? draft.text : '공지 내용이 여기에 보여요' });
@@ -318,10 +308,8 @@
       const b = e.target.closest('[data-bullet]');
       if (b) { draft.bullet = b.dataset.bullet; preview(); }
     });
-    $('#noticeFonts').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-font]');
-      if (b) { draft.font = b.dataset.font; preview(); }
-    });
+    fontPick = Fonts.picker($('#noticeFontPick'), { get: () => draft?.font || 'paperlogy', set: (k) => { draft.font = k; preview(); } });
+    window.addEventListener('fonts:changed', () => { renderAll(); if (!$('#noticeModal').hidden) preview(); });
     $('#noticeText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) save(); });
 
     $('#noticeBgSwatches').addEventListener('click', (e) => {

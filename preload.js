@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('desktop', {
   setCloseToTray: (flag) => ipcRenderer.invoke('tray:setCloseToTray', !!flag),
   quit: () => ipcRenderer.invoke('app:quit'),
   version: () => ipcRenderer.invoke('app:version'),
+  youtubeTitle: (url) => ipcRenderer.invoke('youtube:title', String(url)),
   onWindowState: (cb) => ipcRenderer.on('win:state', (_e, state) => cb(state)),
   onAutoStartChanged: (cb) => ipcRenderer.on('autostart:changed', (_e, v) => cb(v)),
   onResume: (cb) => ipcRenderer.on('system:resume', () => cb()),

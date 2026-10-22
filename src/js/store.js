@@ -58,6 +58,21 @@
     },
     race: { source: 'students', customItems: [], winRank: 'first', winN: 2, title: '', speed: 1, sound: true, bgm: true },
     ui: { panels: {} },
+    // 판서: 칠판 색, 새 판서의 기본 글자 모양, 펜
+    board: {
+      bg: '#1f4a3c',
+      base: { font: 'pretendard', size: 56, weight: 500, color: '#ffffff' },
+      pen: { color: '#ffffff', size: 6 },
+      autosave: true,
+      currentId: null,
+    },
+    // 수업 배경 음악: 고른 종류, 음량, 종류별 유튜브 주소
+    bgm: {
+      cat: 'focus',
+      volume: 60,
+      links: { bright: [], focus: [], classic: [], nature: [], calm: [] },
+      last: null,
+    },
     roulette: { items: ['칭찬 스티커', '발표하기', '청소 당번', '선생님 도우미', '자유 시간', '한 번 더!'], removeWinner: false },
   };
 

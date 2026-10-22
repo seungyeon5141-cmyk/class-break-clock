@@ -10,12 +10,7 @@
     dark: { label: '검정', bg: 'linear-gradient(135deg, #2E2440 0%, #4B3B63 100%)', fg: '#FFFFFF' },
     white: { label: '하양', bg: '#FFFFFF', fg: '#2E2440' },
   };
-  const FONTS = {
-    pretendard: { label: '프리텐다드 Black', css: "var(--font-ui)", weight: 900 },
-    ssurround: { label: '카페24 써라운드', css: "'Cafe24 Ssurround', var(--font-ui)", weight: 'normal' },
-    dangdanghae: { label: '카페24 당당해', css: "'Cafe24 Dangdanghae', var(--font-ui)", weight: 'normal' },
-    paperlogy: { label: '페이퍼로지', css: 'var(--font-main)', weight: 'normal' },
-  };
+  let fontPick = null;
   const DURATIONS = [
     { v: 0, label: '직접 닫기' },
     { v: 5, label: '5초' },
@@ -91,13 +86,12 @@
     const msg = String(text ?? cfg().text).trim();
     if (!msg) { toast('띄울 내용을 입력해 주세요'); $('#popupInput').focus(); return; }
     const theme = THEMES[cfg().theme] || THEMES.alert;
-    const font = FONTS[cfg().font] || FONTS.pretendard;
     const ov = $('#popupOverlay');
     ov.style.setProperty('--pop-bg', theme.bg);
     ov.style.setProperty('--pop-fg', theme.fg);
     const box = $('#popupText');
-    box.style.fontFamily = font.css;
-    box.style.fontWeight = font.weight;
+    box.style.fontFamily = Fonts.css(cfg().font);
+    box.style.fontWeight = Fonts.heaviest(cfg().font);
     fillChars(box, msg, cfg().effect);
     const fxClass = Array.from(box.classList).find((k) => k.startsWith('fx-'));
     if (fxClass) box.classList.remove(fxClass);
@@ -139,8 +133,7 @@
       '<p class="mini-help">자주 쓰는 문구가 없어요. 위에 쓰고 ★를 눌러 저장하세요.</p>';
     $('#popupThemes').innerHTML = Object.entries(THEMES).map(([k, t]) =>
       `<button class="pt-chip${c.theme === k ? ' active' : ''}" data-theme="${k}" style="background:${t.bg};color:${t.fg}" title="${t.label}">가</button>`).join('');
-    $('#popupFonts').innerHTML = Object.entries(FONTS).map(([k, f]) =>
-      `<button class="pf-chip${c.font === k ? ' active' : ''}" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.label}</button>`).join('');
+    fontPick.refresh();
     $('#popupDurations').innerHTML = DURATIONS.map((d) =>
       `<button class="seg${Number(c.duration) === d.v ? ' active' : ''}" data-sec="${d.v}">${d.label}</button>`).join('');
     $('#popupSound').checked = !!c.sound;
@@ -152,12 +145,11 @@
   function preview() {
     const c = cfg();
     const theme = THEMES[c.theme] || THEMES.alert;
-    const font = FONTS[c.font] || FONTS.pretendard;
     const pv = $('#popupPreview');
     pv.style.background = theme.bg;
     pv.style.color = theme.fg;
-    pv.style.fontFamily = font.css;
-    pv.style.fontWeight = font.weight;
+    pv.style.fontFamily = Fonts.css(c.font);
+    pv.style.fontWeight = Fonts.heaviest(c.font);
     fillChars(pv, c.text.trim() || '여기에 크게 보여요', c.effect);
   }
 
@@ -196,10 +188,7 @@
       const b = e.target.closest('[data-theme]');
       if (b) { c.theme = b.dataset.theme; Store.save(); renderPanel(); }
     });
-    $('#popupFonts').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-font]');
-      if (b) { c.font = b.dataset.font; Store.save(); renderPanel(); }
-    });
+    fontPick = Fonts.picker($('#popupFontPick'), { get: () => cfg().font, set: (k) => { cfg().font = k; Store.save(); preview(); } });
     $('#popupEffects').addEventListener('click', (e) => {
       const b = e.target.closest('[data-fx]');
       if (b) { c.effect = b.dataset.fx; Store.save(); renderPanel(); }
