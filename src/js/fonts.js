@@ -14,6 +14,13 @@
     { key: 'ssurround', label: '카페24 써라운드', css: "'Cafe24 Ssurround', var(--font-ui)" },
     { key: 'ssurroundair', label: '카페24 써라운드 에어', css: "'Cafe24 SsurroundAir', var(--font-ui)" },
     { key: 'supermagic', label: '카페24 슈퍼매직', css: "'Cafe24 Supermagic', var(--font-ui)", weights: [400, 700] },
+    { key: 'nanumgothic', label: '나눔고딕', css: "'NanumGothic', var(--font-ui)", weights: [300, 400, 700, 800] },
+    { key: 'nanumbarungothic', label: '나눔바른고딕', css: "'NanumBarunGothic', var(--font-ui)", weights: [200, 300, 400, 700] },
+    { key: 'nanumbarunpen', label: '나눔바른펜', css: "'NanumBarunpen', var(--font-ui)", weights: [400, 700] },
+    { key: 'nanumsquare', label: '나눔스퀘어', css: "'NanumSquare', var(--font-ui)", weights: [300, 400, 700, 800] },
+    { key: 'nanumsquareround', label: '나눔스퀘어 라운드', css: "'NanumSquareRound', var(--font-ui)", weights: [300, 400, 700, 800] },
+    { key: 'nanumsquareneo', label: '나눔스퀘어 네오', css: "'NanumSquare Neo', var(--font-ui)", weights: [400, 700, 800, 900] },
+    { key: 'noonnu', label: '눈누 기초고딕', css: "'Noonnu BasicGothic', var(--font-ui)" },
   ];
   const MAX_FILE = 30 * 1024 * 1024;
   let custom = []; // { key, label, css, custom: true }

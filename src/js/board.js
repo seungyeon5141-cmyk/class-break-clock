@@ -159,6 +159,7 @@
         sel.addRange(r);
         savedRange = r.cloneRange();
       }
+      if (css.fontSize) showSize(parseInt(css.fontSize, 10));
       changed();
       return;
     }

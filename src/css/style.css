@@ -109,6 +109,146 @@
   font-display: swap;
 }
 
+/* 나눔 글꼴 (SIL OFL 1.1, 네이버) · 눈누 기초고딕 — 공지·팝업·판서용 */
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('../fonts/NanumGothic-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('../fonts/NanumGothic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('../fonts/NanumGothic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('../fonts/NanumGothic-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunGothic';
+  src: url('../fonts/NanumBarunGothic-UltraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunGothic';
+  src: url('../fonts/NanumBarunGothic-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunGothic';
+  src: url('../fonts/NanumBarunGothic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunGothic';
+  src: url('../fonts/NanumBarunGothic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunpen';
+  src: url('../fonts/NanumBarunpen-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumBarunpen';
+  src: url('../fonts/NanumBarunpen-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('../fonts/NanumSquare-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('../fonts/NanumSquare-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('../fonts/NanumSquare-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('../fonts/NanumSquare-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquareRound';
+  src: url('../fonts/NanumSquareRound-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquareRound';
+  src: url('../fonts/NanumSquareRound-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquareRound';
+  src: url('../fonts/NanumSquareRound-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquareRound';
+  src: url('../fonts/NanumSquareRound-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare Neo';
+  src: url('../fonts/NanumSquareNeo-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare Neo';
+  src: url('../fonts/NanumSquareNeo-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare Neo';
+  src: url('../fonts/NanumSquareNeo-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NanumSquare Neo';
+  src: url('../fonts/NanumSquareNeo-Heavy.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noonnu BasicGothic';
+  src: url('../fonts/NoonnuBasicGothic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --lav-50: #faf6ff;
   --lav-100: #f1e8ff;
